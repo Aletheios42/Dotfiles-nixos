@@ -38,8 +38,6 @@ in
                 # Bloqueo
                 "${mod}+Escape" = "exec swaylock -f -c 000000";
 
-        
-        
                 #Pantallazos y grabaciones
                 "${mod}+Print" = "exec screenshot-wayland";
                 "${mod}+shift+Print" = "exec toggle-record-wayland";
