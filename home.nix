@@ -21,6 +21,14 @@ in
     VISUAL = "nvim";
   };
 
+  # --- nh ---
+  # Docs: https://home-manager-options.extranix.com/?query=nh&release=release-25.11
+  programs.nh = {
+    enable = true;
+    #clean.dates = "ya veremos";
+  };
+    
+
   # --- SSH ---
   services.ssh-agent.enable = true;
   # --- PAQUETERÍA ---
