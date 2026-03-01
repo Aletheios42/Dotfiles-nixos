@@ -88,7 +88,7 @@ in
 
     # Utils
     # no se si tengo que hacer algo extra con pancdoc
-    pandoc 
+    pandoc texlive.combined.scheme-medium
     ripgrep fd
     tree
     perf

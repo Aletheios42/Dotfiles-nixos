@@ -18,10 +18,11 @@
 
       globals.mapleader = " ";
 
-      clipboard = {
-        enable = true;
-        registers = "unnamedplus";
-      };
+      # Prefiero usar el clipboard de la app, y acceder al del sistema con el '+'
+      # clipboard = {
+      #   enable = true;
+      #   registers = "unnamedplus";
+      # };
 
       theme = {
         enable = true;
@@ -119,6 +120,18 @@
           package = fzf-lua;
           setup = "require('fzf-lua').setup()";
         };
+        vimtex = {
+          package = vimtex;
+          setup = ''
+            vim.g.vimtex_view_method = 'zathura'
+            vim.g.vimtex_compiler_method = 'latexmk'
+            vim.g.vimtex_compiler_latexmk = { out_dir = '/tmp/vimtex' }
+          '';
+        };
+        markdown-preview = {
+          package = markdown-preview-nvim;
+          setup = "";
+        };
       };
 
       keymaps = [
@@ -128,13 +141,19 @@
 
         # Function keys
         { key = "<F1>";  mode = "n"; action = ":set number! relativenumber!<CR>";       desc = "Toggle line numbers"; }
-        { key = "<F2>";  mode = "n"; action = ":set list!<CR>";                         desc = "Toggle listchars"; }
+        { key = "<F2>"; mode = "n"; action = ":set listchars=space:·,tab:→\\ ,eol:↲,trail:•<CR>:set list!<CR>"; desc = "Toggle listchars"; }
         { key = "<F3>";  mode = "n"; action = ":set cursorline!<CR>";                   desc = "Toggle cursorline"; }
         { key = "<F4>"; mode = "n"; action = ":set spell!<CR>";                         desc = "Toggle spell"; }
-        { key = "<F9>"; mode = "n"; action = ":set hlsearch!<CR>";                      desc = "Toggle hlsearch"; }
-        { key = "<F10>"; mode = "n"; action = ":noh<CR>";                               desc = "Clear search highlight"; }
-        { key = "<F11>"; mode = "n"; action = ":set fdm=indent<CR>";                    desc = "Fold by indent"; }
-        { key = "<F12>"; mode = "n"; action = "<cmd>lua local c = vim.diagnostic.config; if c().virtual_lines then c({virtual_lines=false}) else c({virtual_lines=true}) end<CR>"; desc = "Toggle virtual lines"; }
+
+        { key = "<F5>"; mode = "n"; action = "za";                          desc = "Toggle fold (current)"; }
+        { key = "<F6>"; mode = "n"; action = "zA";                          desc = "Toggle fold (recursive)"; }
+        { key = "<F7>"; mode = "n"; action = "zi";                          desc = "Toggle foldenable (all)"; }
+        { key = "<F8>"; mode = "n"; action = "zM<cmd>set fdm=indent<CR>";   desc = "Fold all by indent"; }
+
+        { key = "<F9>"; mode = "n"; action = ":set hlsearch!<CR>";        desc = "Toggle hlsearch"; }
+        { key = "<F10>"; mode = "n"; action = ":noh<CR>";                 desc = "Clear search highlight"; }
+        { key = "<F11>"; mode = "n"; action = "<cmd>lua if vim.bo.ft=='markdown' then vim.cmd('MarkdownPreviewToggle') elseif vim.bo.ft=='tex' then vim.cmd('VimtexCompile') vim.cmd('VimtexView') end<CR>"; desc = "Preview markup"; }
+        { key = "<F12>"; mode = "n"; action = "<cmd>lua local c = vim.diagnostic.config; if c().virtual_lines then c({virtual_lines=false}) else c({virtual_lines=true}) end<CR>";  desc = "Toggle virtual lines"; }
 
         # Buffers (<leader>b)
         { key = "<leader>bl"; mode = "n"; action = "<cmd>lua require('fzf-lua').buffers()<CR>";  desc = "List buffers"; }
@@ -186,7 +205,6 @@
         { key = "<leader>qc"; mode = "n"; action = ":cclose<CR>"; desc = "Close quickfix"; }
         { key = "<leader>qn"; mode = "n"; action = ":cnext<CR>";  desc = "Next quickfix"; }
         { key = "<leader>qp"; mode = "n"; action = ":cprev<CR>";  desc = "Prev quickfix"; }
-
 
         # Minifile (<leader>e)
         { key = "<leader>e";  mode = "n"; action = "<cmd>lua require('mini.files').open()<CR>";                             desc = "Open mini.files"; }

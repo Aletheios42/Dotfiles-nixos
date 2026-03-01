@@ -106,6 +106,10 @@
     bc
   ];
 
+  # --- Man --- 
+  documentation.man.enable = true;
+  documentation.man.cache.enable = true;
+
   # perf sin sudo para debug
   boot.kernel.sysctl = {
     "kernel.perf_event_paranoid" = -1;
