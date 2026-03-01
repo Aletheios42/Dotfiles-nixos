@@ -109,6 +109,28 @@ in
     '';
   };
 
+  # Ranger
+
+  programs.ranger = {
+    enable = true;
+    extraConfig = ''
+      # Para ver archivos ocultos
+      set show_hidden true
+
+      #Para rastrear archivos
+      map f shell find . -name "%s"
+
+      # Para habilitar el preview
+      set preview_images true
+      set preview_images_method w3m
+
+      # Para arreglar el copy-paste
+      map yy copy
+      map dd cut
+      map pp paste
+    '';
+  };
+
   # fzf
   programs.fzf = {
     enable = true;
@@ -157,7 +179,7 @@ in
       plugins = [
         "git" "docker" "sudo"
       ];
-      theme = "robbyrussell"; # O "agnoster" si tienes fuentes parcheadas
+      theme = "robbyrussell";
     };
   };
 
