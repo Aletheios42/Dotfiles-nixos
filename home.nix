@@ -50,19 +50,20 @@ in
     brightnessctl
 
     # Multimedia
-    vlc mpv ffmpeg-full
+    musikcube # Reproductor de música
+    pavucontrol # Para controlar el volumen gráficamente
+    vlc mpv ffmpeg-full # Reproductor de video
     grim slurp # screenshots en Sway
     wf-recorder # Grabar pantalla en sway
     maim slop # screenshots en i3
     simplescreenrecorder # Grabar pantalla en i3
-    pavucontrol # Para controlar el volumen gráficamente
 
     # Portapapeles
     wl-clipboard # Wayland
     xclip xsel # Xorg
 
     # Social
-    discord slack thunderbird
+    discord slack thunderbird element-desktop
 
     # Seguridad
     keepassxc
@@ -86,11 +87,27 @@ in
     qemu virt-manager
 
     # Utils
-    zathura # PDF Reader minimalista
-    ripgrep
-    fd
+    # no se si tengo que hacer algo extra con pancdoc
+    pandoc 
+    ripgrep fd
     tree
+    perf
   ];
+
+  # zathura
+  programs.zathura = {
+    enable = true;
+    extraConfig = ''
+      # Definir color de fondo y texto (modo oscuro)
+      set recolor true
+      set recolor-keephue true
+      set default-bg "#282828"  # Fondo oscuro
+      set default-fg "#ebdbb2"  # Texto en color claro
+
+      # Sincronizar clipboard
+      set selection-clipboard clipboard
+    '';
+  };
 
   # fzf
   programs.fzf = {
@@ -106,6 +123,9 @@ in
   programs.tmux = {
     enable = true;
     clock24 = true;
+    extraConfig = ''
+        set -sg escape-time 10
+    '';
     plugins = with pkgs.tmuxPlugins; [
       vim-tmux-navigator
       {

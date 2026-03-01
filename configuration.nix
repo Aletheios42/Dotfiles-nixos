@@ -32,17 +32,6 @@
 
   # --- Sistema de archivos ---
   boot.supportedFilesystems = ["ntfs"];
-  fileSystems."/home/aletheios42/Comunes" = {
-    device = "/dev/disk/by-uuid/B6864A79864A39DF";
-    fsType = "ntfs-3g";
-    options = [
-        "rw"
-        "nofail"
-        "uid=1000"
-        "gid=1000"
-        "umask=0022"
-    ];
-  };
 
   # ---  Bluetooth ---
   hardware.bluetooth.enable = true;
@@ -113,7 +102,6 @@
 
   # --- GNU --- 
   environment.systemPackages = with pkgs; [
-    config.boot.kernelPackages.perf 
     showmethekey
     bc
   ];
