@@ -1,12 +1,27 @@
 { config, lib, pkgs, inputs, ... }:
 
 let
+  scripts = import ./scripts/default.nix { inherit pkgs carpeta_grabaciones carpeta_pantallazo; };
   mod = "Mod4";
   terminal = "kitty";
   user = "aletheios42";
   carpeta_musica = "Comunes/Música";
   carpeta_grabaciones = "Comunes/Videos/Grabaciones";
   carpeta_pantallazo = "Comunes/Imagenes/Pantallazos";
+  dagger = pkgs.stdenv.mkDerivation rec {
+    name = "dagger";
+    version = "0.20.1";
+    src = pkgs.fetchurl {
+      url = "https://dl.dagger.io/dagger/releases/${version}/dagger_v${version}_linux_amd64.tar.gz";
+      sha256 = "sha256-ASr6gZqdRZOJrzTxBVwGTcEXiBCAv5HcMaa0aU8rz5k=";
+    };
+    dontUnpack = true;
+    installPhase = ''
+    mkdir -p $out/bin
+    tar -xzf $src -C $out/bin dagger
+    chmod +x $out/bin/dagger
+    '';
+  };
 in
   {
   imports = [ ./i3.nix ./sway.nix ./nvim.nix  inputs.nvf.homeManagerModules.default ];
@@ -44,7 +59,7 @@ in
     kitty rofi dmenu lxappearance swaylock i3lock
 
     # Navegadores
-    firefox google-chrome chromium brave
+    firefox google-chrome chromium brave qutebrowser
 
     # Brillo
     brightnessctl
@@ -92,6 +107,11 @@ in
     ripgrep fd
     tree
     perf
+    direnv
+    zip unzip
+
+    # Scripts
+    scripts.tree-cat
   ];
 
   # zathura

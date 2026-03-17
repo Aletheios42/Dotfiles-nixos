@@ -41,6 +41,8 @@
   networking.networkmanager.enable = true;
   time.timeZone = "Europe/Madrid";
   i18n.defaultLocale = "es_ES.UTF-8";
+  networking.nftables.enable = false;
+  boot.kernelModules = [ "ip_tables" "iptable_nat" "iptable_filter" "nf_nat" ];
 
   # --- CONSOLA & KEYMAP ---
   console.earlySetup = true; #Aplica key repeat y dealy en las tty
@@ -78,7 +80,12 @@
 
   # --- VIRTUALIZACIÓN & CONTENEDORES ---
   virtualisation = {
-    docker.enable = true;
+    docker = {
+      enable = true;
+      daemon.settings = {
+        "exec-opts" = ["native.cgroupdriver=systemd"];
+      };
+    };
     podman.enable = true;
     libvirtd.enable = true;
   };
@@ -100,10 +107,13 @@
   programs.nix-index.enableBashIntegration = true; # Completion de paquetes en bash
   programs.nix-index.enableZshIntegration = true; # Completion de paquetes en zsh
 
-  # --- GNU --- 
+  # --- Programs --- 
   environment.systemPackages = with pkgs; [
     showmethekey
     bc
+    openssl
+    netcat
+    telegram-desktop whatsapp-electron
   ];
 
   # --- Man --- 

@@ -76,6 +76,18 @@
         typst.enable = true; yaml.enable = true; markdown.enable = true;
       };
 
+      luaConfigRC.go-imports-only = ''
+        vim.api.nvim_create_autocmd("BufWritePre", {
+          pattern = "*.go",
+          callback = function()
+            vim.lsp.buf.code_action({
+              context = { only = { "source.organizeImports" } },
+              apply = true,
+            })
+          end,
+        })
+      '';
+
       autocomplete.nvim-cmp.enable = true;
       luaConfigRC.cmp-keymaps = ''
         local cmp = require('cmp')
@@ -87,6 +99,9 @@
             ['<C-e>'] = cmp.mapping.abort(),
             ['<C-d>'] = cmp.mapping.scroll_docs(4),
             ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+            ['<Tab>']   = cmp.config.disable,
+            ['<S-Tab>'] = cmp.config.disable,
+            ['<CR>']    = cmp.config.disable,
           }
         })
       '';
@@ -143,7 +158,7 @@
         { key = "<F1>";  mode = "n"; action = ":set number! relativenumber!<CR>";       desc = "Toggle line numbers"; }
         { key = "<F2>"; mode = "n"; action = ":set listchars=space:·,tab:→\\ ,eol:↲,trail:•<CR>:set list!<CR>"; desc = "Toggle listchars"; }
         { key = "<F3>";  mode = "n"; action = ":set cursorline!<CR>";                   desc = "Toggle cursorline"; }
-        { key = "<F4>"; mode = "n"; action = ":set spell!<CR>";                         desc = "Toggle spell"; }
+        { key = "<F4>"; mode = "n"; action = "<cmd>lua if vim.bo.ft=='markdown' then vim.cmd('MarkdownPreviewToggle') elseif vim.bo.ft=='tex' then vim.cmd('VimtexCompile') vim.cmd('VimtexView') end<CR>"; desc = "Preview markup"; }
 
         { key = "<F5>"; mode = "n"; action = "za";                          desc = "Toggle fold (current)"; }
         { key = "<F6>"; mode = "n"; action = "zA";                          desc = "Toggle fold (recursive)"; }
@@ -152,7 +167,7 @@
 
         { key = "<F9>"; mode = "n"; action = ":set hlsearch!<CR>";        desc = "Toggle hlsearch"; }
         { key = "<F10>"; mode = "n"; action = ":noh<CR>";                 desc = "Clear search highlight"; }
-        { key = "<F11>"; mode = "n"; action = "<cmd>lua if vim.bo.ft=='markdown' then vim.cmd('MarkdownPreviewToggle') elseif vim.bo.ft=='tex' then vim.cmd('VimtexCompile') vim.cmd('VimtexView') end<CR>"; desc = "Preview markup"; }
+        { key = "<F11>"; mode = "n"; action = ":set spell!<CR>";                         desc = "Toggle spell"; }
         { key = "<F12>"; mode = "n"; action = "<cmd>lua local c = vim.diagnostic.config; if c().virtual_lines then c({virtual_lines=false}) else c({virtual_lines=true}) end<CR>";  desc = "Toggle virtual lines"; }
 
         # Buffers (<leader>b)

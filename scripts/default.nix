@@ -29,4 +29,10 @@
             carpetaGrabaciones = carpeta_grabaciones;
         });
     };
+
+  tree-cat = pkgs.writeShellApplication {
+    name = "tree-cat";
+    runtimeInputs = [ pkgs.tree ];
+    text = builtins.readFile ./tree-cat.sh;
+  };
 }
