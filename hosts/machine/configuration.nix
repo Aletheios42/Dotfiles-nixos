@@ -52,7 +52,7 @@
     };
   };
 
-  userPackages.aletheios42 = [ pkgs.gnumake pkgs.sops pkgs.wget pkgs.btop ];
+  userPackages.aletheios42 = [ pkgs.gnumake pkgs.gcc pkgs.sops pkgs.wget pkgs.btop ];
 
   shell = {
     enable = true;
@@ -76,7 +76,10 @@
 
   escritorio = {
     enable = true;
+    # mango = true;
     sway = true;
+    # niri = true;
+    noctalia = true;
   };
 
   virtualizacion = {

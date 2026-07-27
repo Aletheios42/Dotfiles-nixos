@@ -22,8 +22,7 @@
             size = "100%";
             content = {
               type = "luks";
-              name = "crypted"; # Este será el nombre en /dev/mapper/crypted
-              # Si usas SSD, permite discard (TRIM) a través de LUKS
+              name = "crypted";
               settings.allowDiscards = true;
 
               content = {

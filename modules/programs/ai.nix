@@ -25,25 +25,10 @@ let
     '';
   };
 
-  squeez = pkgs.stdenv.mkDerivation {
-    name = "squeez-1.32.1";
-    src = pkgs.fetchurl {
-      url    = "https://github.com/claudioemmanuel/squeez/releases/download/v1.32.1/squeez-linux-x86_64";
-      sha256 = "sha256-XVfAuA8rNPXcyYtzyx9whvISazdCKNejzgS3KbNmxtw=";
-    };
-    phases = [ "installPhase" ];
-    installPhase = ''
-      mkdir -p $out/bin
-      cp $src $out/bin/squeez
-      chmod +x $out/bin/squeez
-    '';
-  };
-
   odDaemon = open-design.packages.${pkgs.system}.daemon;
 
   mcpEntries = lib.concatStringsSep ",\n              " [
     "\"context7\": {\"type\": \"remote\", \"url\": \"https://mcp.context7.com/mcp\"}"
-    "\"squeez\": {\"type\": \"local\", \"command\": [\"${squeez}/bin/squeez\", \"mcp\"]}"
     "\"codebase\": {\"type\": \"local\", \"command\": [\"${codebaseMem}/bin/codebase-memory-mcp\"]}"
     "\"memoryGraph\": {\"type\": \"local\", \"command\": [\"${mcpKnowledgeGraph}/bin/mcp-knowledge-graph\", \"--memory-path\", \"${home}/.aim/memory.jsonl\"]}"
     "\"open-design\": {\"type\": \"local\", \"command\": [\"${odDaemon}/bin/od\", \"mcp\", \"--daemon-url\", \"http://127.0.0.1:${toString config.opendesign.port}\"]}"
@@ -53,13 +38,13 @@ let
     model_list:
       - model_name: deepseek-flash
         litellm_params:
-          model: deepseek/deepseek-chat
+          model: deepseek/deepseek-v4-flash
           api_key: os.environ/DEEPSEEK_API_KEY
       - model_name: deepseek-pro
         litellm_params:
-          model: deepseek/deepseek-reasoner
+          model: deepseek/deepseek-v4-pro
           api_key: os.environ/DEEPSEEK_API_KEY
-      - model_name: qwen-coder-37-4b
+      - model_name: work
         litellm_params:
           model: openai/llama-work
           api_base: http://${config.ai.llama.work.host}:${toString config.ai.llama.work.port}/v1
@@ -71,7 +56,7 @@ in
     enable = lib.mkEnableOption "Activa el modulo de herramientas AI";
 
     opencode = {
-      enable = lib.mkEnableOption "Activa OpenCode (incluye context7, squeez, codebase-memory-mcp y mcp-knowledge-graph)";
+      enable = lib.mkEnableOption "Activa OpenCode (incluye context7, codebase-memory-mcp y mcp-knowledge-graph)";
     };
 
     litellm = {
@@ -107,7 +92,7 @@ in
         message = "ai.opencode requiere sops (mi_sops.enable) para las claves de proveedores";
       }];
 
-      userPackages.ai = [ pkgs.opencode squeez codebaseMem mcpKnowledgeGraph ];
+      userPackages.ai = [ pkgs.opencode codebaseMem mcpKnowledgeGraph ];
 
       sops.secrets."opencode/opencode_go_key" = {};
 
@@ -120,19 +105,8 @@ in
         ".npm"
       ];
 
-      system.activationScripts.opencode-squeez-setup = {
-        deps = [ "users" ];
-        text = ''
-          if [ ! -f ${home}/.config/opencode/plugins/squeez.js ]; then
-            mkdir -p ${home}/.config/opencode/plugins
-            HOME=${home} ${squeez}/bin/squeez setup --host=opencode
-            ${pkgs.coreutils}/bin/chown -R ${user}:${user} ${home}/.config/opencode
-          fi
-        '';
-      };
-
       system.activationScripts.opencode-config = {
-        deps = [ "setupSecrets" "users" "opencode-squeez-setup" ];
+        deps = [ "setupSecrets" "users" ];
         text = ''
           oc_key=$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."opencode/opencode_go_key".path} 2>/dev/null || echo "CHANGE_ME")
           ll_key=$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."ai/litellm_master_key".path} 2>/dev/null || echo "CHANGE_ME")
@@ -147,7 +121,7 @@ in
             "autoupdate": false,
             "share": "disabled",
             "experimental": { "openTelemetry": false },
-            "permission": { "edit": "ask" },
+            "permission": { "edit": "allow", "bash": "allow", "filesystem": "allow" },
             "skills": {
               "urls": ["https://www.skills.sh/.well-known/skills/opencode/"]
             },
@@ -168,9 +142,9 @@ in
                     "name": "DeepSeek Pro (via LiteLLM)",
                     "limit": { "context": 65536, "output": 8192 }
                   },
-                  "qwen-coder-37-4b": {
-                    "name": "Qwen3.7-Coder 4B (local via LiteLLM)",
-                    "limit": { "context": 16384 , "output": 4096 }
+                  "work": {
+                    "name": "Local (según work-model.gguf)",
+                    "limit": { "context": 65536, "output": 8192 }
                   }
                 }
               }''}
@@ -178,17 +152,17 @@ in
             "mcp": {
               ${mcpEntries}
             }${lib.optionalString config.ai.litellm.enable '',
-            "model": "openai-compatible/qwen-coder-37-4b",
+            "model": "openai-compatible/work",
             "agent": {
               "build": {
                 "mode": "primary",
-                "model": "openai-compatible/qwen-coder-37-4b",
+                "model": "openai-compatible/work",
                 "permission": { "edit": "allow", "bash": "allow" }
                 },
               "plan": {
                 "mode": "primary",
                 "model": "openai-compatible/deepseek-pro",
-                "permission": { "edit": "ask", "bash": "ask" }
+                "permission": { "edit": "allow", "bash": "allow", "filesystem": "allow" }
                 }
                 }''}
           }

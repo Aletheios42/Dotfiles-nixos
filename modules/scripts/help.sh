@@ -24,7 +24,6 @@ echo -e "${BOLD}Herramientas AI${RESET}"
 echo "─────────────────────────────────────────────"
 command -v opencode   &>/dev/null && echo -e "  ${CYAN}opencode${RESET}                       Agente AI de coding (opencode.ai)"
 command -v engram     &>/dev/null && echo -e "  ${CYAN}engram${RESET}                         Memoria persistente para agentes AI"
-command -v squeez     &>/dev/null && echo -e "  ${CYAN}squeez${RESET}                         Compresor de tokens para AI CLIs"
 command -v llama-server &>/dev/null && echo -e "  ${CYAN}llama-server${RESET}                   Servidor de inferencia local (llama.cpp)"
 command -v whisper    &>/dev/null && echo -e "  ${CYAN}whisper${RESET}                        Transcripción de voz (whisper.cpp)"
 
