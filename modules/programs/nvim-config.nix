@@ -250,7 +250,7 @@
             auto_fim      = true,
             keymap_fim_accept_full = '<C-y>',
             keymap_fim_accept_line = '<C-Y>',
-            keymap_inst_accept     = '''',
+            keymap_inst_accept     = ${"''"},
           }
         '';
       };

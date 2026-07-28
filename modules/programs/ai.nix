@@ -32,6 +32,7 @@ let
     "\"codebase\": {\"type\": \"local\", \"command\": [\"${codebaseMem}/bin/codebase-memory-mcp\"]}"
     "\"memoryGraph\": {\"type\": \"local\", \"command\": [\"${mcpKnowledgeGraph}/bin/mcp-knowledge-graph\", \"--memory-path\", \"${home}/.aim/memory.jsonl\"]}"
     "\"open-design\": {\"type\": \"local\", \"command\": [\"${odDaemon}/bin/od\", \"mcp\", \"--daemon-url\", \"http://127.0.0.1:${toString config.opendesign.port}\"]}"
+    "\"playwright\": {\"type\": \"local\", \"command\": [\"${pkgs.playwright-mcp}/bin/playwright-mcp\"]}"
   ];
 
   litellmConfigYaml = pkgs.writeText "litellm-config.yaml" ''
@@ -92,7 +93,7 @@ in
         message = "ai.opencode requiere sops (mi_sops.enable) para las claves de proveedores";
       }];
 
-      userPackages.ai = [ pkgs.opencode codebaseMem mcpKnowledgeGraph ];
+      userPackages.ai = [ pkgs.opencode codebaseMem mcpKnowledgeGraph pkgs.playwright-mcp ];
 
       sops.secrets."opencode/opencode_go_key" = {};
 
