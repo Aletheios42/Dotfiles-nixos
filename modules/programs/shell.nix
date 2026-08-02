@@ -21,6 +21,9 @@ let
     zstyle ':completion:*' cache-path ~/.zcompcache
     source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
 
+    export SAVEHIST=100000
+    setopt SHARE_HISTORY HIST_IGNORE_DUPS
+
     export FZF_DEFAULT_COMMAND="rg --files --hidden --smart-case"
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     export FZF_ALT_C_COMMAND="fd --type d --hidden"
@@ -148,6 +151,8 @@ KITTYEOF
         enableCompletion = true;
         autosuggestions.enable = true;
         syntaxHighlighting.enable = true;
+        histSize = 100000;
+        histFile = "$HOME/.zsh_history";
         ohMyZsh = {
           enable = true;
           plugins = [ "git" "docker" "sudo" ];
@@ -171,7 +176,7 @@ KITTYEOF
         fi
       '';
       myImpermanence.users.${config.vars.usuarioPrincipal} = {
-        files = [ ".zshrc" ];
+        files = [ ".zshrc" ".zsh_history" ];
         directories = [ ".zcompcache" ];
       };
     })
@@ -199,8 +204,6 @@ KITTYEOF
           name = "ranger";
           paths = [ pkgs.ranger ];
           buildInputs = [ pkgs.makeWrapper ];
-          # No se deshabilita el RC por defecto — preserva todos los vim keybindings nativos.
-          # La config personalizada se anade encima.
           postBuild = ''
             wrapProgram $out/bin/ranger \
               --add-flags "--cmd='source ${rangerConf}'"

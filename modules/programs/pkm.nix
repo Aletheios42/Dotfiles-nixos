@@ -1,0 +1,62 @@
+{ pkgs, lib, config, ... }:
+{
+  options.pkm = {
+    enable = lib.mkEnableOption "Activo pkm";
+    dir = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "ruta del baul de notas";
+    };
+    obsidian = lib.mkEnableOption "obsidian";
+    zk = lib.mkEnableOption "activa zk";
+  };
+
+  config = lib.mkIf config.pkm.enable (lib.mkMerge [
+    {
+      assertions = [
+        {
+          assertion = builtins.match "^/.*" config.pkm.dir != null;
+          message = "pkm.dir debe ser una ruta absoluta.";
+        }
+      ];
+    }
+    {
+      myImpermanence.users.${config.vars.usuarioPrincipal} = {
+        directories = [ "Documentos/Pkm" ];
+      };
+    }
+    (lib.mkIf config.pkm.zk {
+      userPackages.pkm = [ pkgs.zk ];
+      system.activationScripts.zkConfig = ''
+      mkdir -p /home/${config.vars.usuarioPrincipal}/Documentos/Pkm/.zk
+      cat > /home/${config.vars.usuarioPrincipal}/Documentos/Pkm/.zk/config.toml <<'EOF'
+      [note]
+      filename = "{{slug title}}"
+      template = "default.md"
+
+      [format.markdown]
+      link-format = "wiki"
+      hashtags = false
+      colon-tags = false
+      multiword-tags = false
+
+      [lsp]
+      [lsp.diagnostics]
+      # Report titles of wiki-links as hints.
+      wiki-title = "hint"
+      # Warn for dead links between notes.
+      dead-link = "error"
+      # Warn when notes link here without backlinks.
+      missing-backlink = { level = "warning", position = "bottom" }
+      EOF
+      chown ${config.vars.usuarioPrincipal}:users /home/${config.vars.usuarioPrincipal}/Documentos/Pkm/.zk/config.toml
+      '';
+    })
+    (lib.mkIf config.pkm.obsidian {
+      userPackages.pkm = [ pkgs.obsidian ];
+      myImpermanence.users.${config.vars.usuarioPrincipal} = {
+        directories = [ ".config/obsidian" ];
+      };
+    })
+  ]);
+}

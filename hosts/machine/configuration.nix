@@ -52,7 +52,8 @@
     };
   };
 
-  userPackages.aletheios42 = [ pkgs.gnumake pkgs.gcc pkgs.sops pkgs.wget pkgs.btop ];
+  # hacer serccion de paquetes de dev
+  userPackages.aletheios42 = [ pkgs.gnumake pkgs.gdb pkgs.gcc pkgs.sops pkgs.wget pkgs.btop pkgs.age pkgs.magic-wormhole-rs pkgs.pandoc pkgs.zk];
 
   shell = {
     enable = true;
@@ -76,7 +77,7 @@
 
   escritorio = {
     enable = true;
-    # mango = true;
+    mango = true;
     sway = true;
     # niri = true;
     noctalia = true;
@@ -133,7 +134,12 @@
     obs.enable = true;
   };
 
-  obsidian.enable = true;
+  pkm = {
+    enable = true;
+    dir = "/home/aletheios42/Documentos/Pkm/";
+    zk = true;
+    obsidian = true;
+  };
 
   passwords = {
     enable = true;

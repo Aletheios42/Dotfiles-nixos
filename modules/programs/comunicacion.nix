@@ -60,14 +60,13 @@ in
               USER_JS="$TB_DIR/$PROFILE_PATH/user.js"
               # Solo escribir si no tiene ya nuestro marcador
               if ! ${pkgs.gnugrep}/bin/grep -q "thunderbird-compact-dark" "$USER_JS" 2>/dev/null; then
-                cat >> "$USER_JS" << 'TBEOF'
-${thunderbirdPrefs}TBEOF
+                cat >> "$USER_JS" << 'TBEOF' 
+          ${thunderbirdPrefs}TBEOF
               fi
             fi
           fi
         '';
       };
-
       myImpermanence.users.${user}.directories = [ ".thunderbird" ];
     })
     (lib.mkIf config.comunicacion.weechat {
