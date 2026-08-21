@@ -1,115 +1,120 @@
 { lib, config, ... }:
 {
-  options.mi_mailserver = {
-    enable = lib.mkEnableOption "Activa el servidor de correo";
+  options.correo = {
+    enable = lib.mkEnableOption "activa el servidor de correo";
+    fqdn = lib.mkOption { 
+      type = lib.types.str;
+      default = ""; 
+    };
+    dominios = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+    };
+
     accounts = lib.mkOption {
+      description = "Listado de cuentas de correo";
+      default = {};
       type = lib.types.attrsOf (lib.types.submodule {
         options = {
-          hashedPasswordFile = lib.mkOption { type = lib.types.str; };
-          aliases = lib.mkOption { type = lib.types.listOf lib.types.str; default = []; };
+          hashedPassword = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null; 
+            description = "crea hashes con 'mkpasswd -s'";
+          };
+          aliases = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [];
+          };
+          sieveScript = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "Script Sieve para filtrado y orden automático de correos en el servidor";
+          };
         };
       });
-      description = "Cuentas de correo del servidor";
-    };
-    relay = {
-      enable = lib.mkEnableOption "Activa relay SMTP via smarthost (ej. Mailgun)";
-      host = lib.mkOption {
-        type = lib.types.str;
-        default = "smtp.mailgun.org";
-        description = "Host del smarthost";
-      };
-      port = lib.mkOption {
-        type = lib.types.port;
-        default = 587;
-        description = "Puerto del smarthost";
-      };
     };
   };
 
-  config = lib.mkIf config.mi_mailserver.enable {
+  config = lib.mkIf (config.correo.enable) {
     assertions = [
       {
-        assertion = config.vars.dominio != "";
-        message = "El dominio debe estar configurado para usar el mailserver.";
+        assertion = lib.all (p: builtins.elem p config.networking.firewall.allowedTCPPorts) [80 25 465 587 993 995];
+        message = "mailserver: necesitas abrir 80, 25, 465, 587 y 993 995 en red.puertosPermitidos";
       }
       {
-        assertion = config.mi_mailserver.accounts != {};
-        message = "Debe haber al menos una cuenta de correo configurada.";
+        assertion = config.correo.fqdn != "";
+        message = "mailserver: necesitas tener un dominio";
+      }
+      {
+        assertion = config.correo.dominios != [];
+        message = "mailserver: necesitas al menos un dominio en correo.dominios";
       }
       {
         assertion = config.mi_sops.enable;
-        message = "mi_mailserver requiere sops (mi_sops.enable)";
+        message = "mailserver requiere sops (mi_sops.enable) para las credenciales de Mailgun";
       }
     ];
 
-    sops.secrets."mailserver/admin_pass" = {};
-    sops.secrets."mailserver/relay_user" = lib.mkIf config.mi_mailserver.relay.enable {};
-    sops.secrets."mailserver/relay_pass" = lib.mkIf config.mi_mailserver.relay.enable {};
+    # Secretos y plantilla para el mapa SASL de Postfix
+    sops.secrets."mailgun/user" = {};
+    sops.secrets."mailgun/password" = {};
 
-    sops.templates."postfix-sasl-passwd" = {
+    sops.templates."postfix-mailgun-sasl" = {
       owner = "postfix";
       group = "postfix";
-      mode = "0600";
-      content = lib.mkIf config.mi_mailserver.relay.enable ''
-        [${config.mi_mailserver.relay.host}]:${toString config.mi_mailserver.relay.port} ${config.sops.placeholder."mailserver/relay_user"}:${config.sops.placeholder."mailserver/relay_pass"}
+      mode = "0400";
+      content = ''
+        [smtp.mailgun.org]:587 ${config.sops.placeholder."mailgun/user"}:${config.sops.placeholder."mailgun/password"}
       '';
     };
 
-    # Configuramos un bloque de Nginx ficticio para forzar a ACME a generar 
-    # el certificado del subdominio mail.
-    services.nginx.virtualHosts."mail.${config.vars.dominio}" = {
-      useACMEHost = "wildcard";
-      forceSSL = true;
-    };
+    # https://letsencrypt.org/repository/#let-s-encrypt-subscriber-agreement
+    security.acme.acceptTerms = true;
 
-    # Relay SMTP via smarthost (Postfix directo)
-    # Usamos texthash: en lugar de hash: para que Postfix lea el archivo de texto
-    # directamente sin necesidad de compilar .db con postmap (que falla sobre
-    # symlinks hacia /run/secrets/rendered, que es read-only).
-    services.postfix = lib.mkIf config.mi_mailserver.relay.enable {
-      settings.main = {
-        relayhost = [ "[${config.mi_mailserver.relay.host}]:${toString config.mi_mailserver.relay.port}" ];
-        smtp_sasl_password_maps = "texthash:/var/lib/postfix/conf/sasl_passwd";
-        smtp_sasl_auth_enable = "yes";
-        smtp_sasl_security_options = "noanonymous";
-        smtp_tls_security_level = lib.mkForce "encrypt";
+    # Enable ACME HTTP-01 challenge with nginx
+    services.nginx = {
+      enable = true;
+      virtualHosts.${config.correo.fqdn} = {
+        useACMEHost = "wildcard";
+        forceSSL = true;
       };
-    };
-
-    # Enlazar el template Sasl-passwd de sops hacia /var/lib/postfix/conf/ sin
-    # usar mapFiles (que invocaría postmap sobre un target read-only y fallaría).
-    # tmpfiles crea el dir /var/lib/postfix/conf si no existe y el symlink.
-    systemd.tmpfiles.settings."postfix-sasl" = lib.mkIf config.mi_mailserver.relay.enable {
-      "/var/lib/postfix/conf/".d = {
-        mode = "0755";
-        user = "root";
-        group = "root";
-      };
-      "/var/lib/postfix/conf/sasl_passwd".L.argument = config.sops.templates."postfix-sasl-passwd".path;
     };
 
     mailserver = {
       enable = true;
-      fqdn = "mail.${config.vars.dominio}";
-      domains = [ config.vars.dominio ];
-      
-      accounts = config.mi_mailserver.accounts;
-
-      stateVersion = 4; 
-
-      # Usamos el certificado ACME wildcard
-      x509.useACMEHost = "wildcard";
-
-      enableImap = true;
-      enableImapSsl = true;
-      enableSubmission = true;
-      enableSubmissionSsl = true;
-
-      virusScanning = false;
-      
-      enableNixpkgsReleaseCheck = false;
+      stateVersion = 5;
+      fqdn = config.correo.fqdn;
+      domains = config.correo.dominios;
+      accounts = config.correo.accounts;
+      # Clave DKIM generada en rspamd
+      dkim.keyDirectory = "/var/lib/rspamd/dkim";
+      # Reference the existing ACME configuration created by nginx
+      x509.useACMEHost = "wildcard"; 
     };
 
-    myImpermanence.system.directories = [ "/var/lib/dovecot" "/var/lib/postfix" "/var/vmail" ];
+    # Configuración de Postfix para el relay con Mailgun
+    services.postfix.settings.main = {
+      relayhost = [ "[smtp.mailgun.org]:587" ];
+      smtp_sasl_auth_enable = "yes";
+      smtp_sasl_security_options = "noanonymous";
+      smtp_sasl_password_maps = [ "texthash:${config.sops.templates."postfix-mailgun-sasl".path}" ];
+      smtp_tls_security_level = lib.mkForce "encrypt";
+      smtp_tls_note_starttls_offer = "yes";
+    };
+
+    # Gestión declarativa de permisos y carpetas del sistema
+    systemd.tmpfiles.rules = [
+      "d /var/lib/rspamd 0750 rspamd rspamd -"
+      "d /var/lib/rspamd/dkim 0750 rspamd rspamd -"
+      "d /var/vmail 0770 virtual-mail virtual-mail -"
+      "d /var/lib/postfix 0700 postfix postfix -"
+      "d /var/lib/dovecot 0755 dovecot2 dovecot2 -"
+    ];
+    myImpermanence.system.directories = [
+      "/var/vmail"
+      "/var/lib/rspamd"
+      "/var/lib/postfix"
+      "/var/lib/dovecot"
+    ];
   };
 }

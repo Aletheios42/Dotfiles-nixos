@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ pkgs, lib, config, ... }:
 {
   options.mi_sops = {
     enable = lib.mkEnableOption "Activa Sops-Nix con cifrado age";
@@ -18,6 +18,7 @@
   };
 
   config = lib.mkIf config.mi_sops.enable {
+    userPackages.secretos = [ pkgs.sops pkgs.age ];
     sops = {
       defaultSopsFile = config.mi_sops.secretsFile;
       age = lib.mkMerge [

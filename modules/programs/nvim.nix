@@ -18,13 +18,41 @@ in
             wrap = false; expandtab = true; tabstop = 2; shiftwidth = 2;
             scrolloff = 6;
             virtualedit = "block";
+            sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,globals";
             inccommand = "split";
             ignorecase = true;
             termguicolors = true;
-            undofile = true;
             conceallevel = 2;
             concealcursor = "nc";
             autoread = true;
+          };
+
+          undoFile = {
+            enable = true;
+            path = lib.generators.mkLuaInline "vim.fn.expand('~/.local/state/nvf/undo')";
+          };
+          utility.undotree.enable = true;
+          visuals.highlight-undo.enable = true;
+
+          session.nvim-session-manager = {
+            enable = true;
+            usePicker = false; # no dressing.nvim, usas fzf-lua
+            mappings = {
+              loadSession = "<leader>sl";
+              loadLastSession = "<leader>slt";
+              saveCurrentSession = "<leader>sc";
+              deleteSession = "<leader>sd";
+            };
+            setupOpts = {
+              autoload_mode = "CurrentDir"; # restaura sesión del cwd, no la última global
+              autosave_last_session = true;
+              autosave_ignore_not_normal = true;
+              autosave_ignore_dirs = [
+                "${builtins.getEnv "HOME"}"
+                "/tmp"
+              ];
+              max_path_length = 0; # sin truncar
+            };
           };
 
           globals.mapleader = " ";
@@ -47,6 +75,45 @@ in
               enable = true;
             };
           };
+
+          lsp = { enable = true; lspconfig.enable = true; };
+
+          languages = {
+            enableTreesitter = true;  nix.enable = true;      bash.enable = true;
+            markdown.enable = true;   typst.enable = true;
+            clang.enable = true;      zig.enable = true;      python.enable = true;
+            yaml.enable = true;       helm.enable = true;     sql.enable = true;        
+            html.enable = true;       css.enable = true;      svelte.enable = true;
+          };
+
+          autocomplete.blink-cmp = {
+            enable = true;
+            mappings = {
+              complete       = "<C-Space>";
+              confirm        = "<C-y>";
+              next           = "<C-n>";
+              previous       = "<C-p>";
+              close          = "<C-e>";
+              scrollDocsUp   = "<C-u>";
+              scrollDocsDown = "<C-d>";
+            };
+            friendly-snippets.enable = true;
+          };
+
+          git = {
+            enable = true;
+            gitsigns = {
+              enable = true;
+              mappings = {
+                nextHunk = "]g";
+                previousHunk = "[g";
+              };
+            };
+          };
+
+          luaConfigRC.fzfUiSelect = ''
+      require("fzf-lua").register_ui_select()
+          '';
 
           luaConfigRC.treesitter-path = ''
       local parser_dirs = vim.api.nvim_get_runtime_file("parser", true)
@@ -112,42 +179,6 @@ in
       vim.keymap.set("n", "<leader>a", function() ts_swap.swap_next("@parameter.inner", "textobjects") end)
       vim.keymap.set("n", "<leader>A", function() ts_swap.swap_previous("@parameter.inner", "textobjects") end)
           '';
-
-          lsp = { enable = true; lspconfig.enable = true; };
-
-          git = {
-            enable = true;
-            gitsigns = {
-              enable = true;
-              mappings = {
-                nextHunk = "]g";
-                previousHunk = "[g";
-                };
-                };
-                };
-
-                languages = {
-                enableTreesitter = true;  nix.enable = true;      bash.enable = true;
-                markdown.enable = true;
-                clang.enable = true;      zig.enable = true;      python.enable = true;
-                yaml.enable = true;       helm.enable = true;     sql.enable = true;        
-                html.enable = true;       css.enable = true;      svelte.enable = true;
-                lua.enable = true;
-                };
-
-                autocomplete.blink-cmp = {
-                enable = true;
-                mappings = {
-                complete       = "<C-Space>";
-                confirm        = "<C-y>";
-                next           = "<C-n>";
-                previous       = "<C-p>";
-              close          = "<C-e>";
-              scrollDocsUp   = "<C-u>";
-              scrollDocsDown = "<C-d>";
-            };
-            friendly-snippets.enable = true;
-          };
 
           luaConfigRC.blink-disable-tab = ''
       local blink = require("blink.cmp")
@@ -257,6 +288,7 @@ in
             { key = "<F6>";  mode = "n"; action = "zA";  desc = "Toggle fold (recursive)"; }
             { key = "<F7>";  mode = "n"; action = "zi";  desc = "Toggle foldenable (all)"; }
             { key = "<F8>";  mode = "n"; action = ":set fdm=indent<CR>"; desc = "Fold all by indent"; }
+
             { key = "<F9>";  mode = "n"; action = ":set hlsearch!<CR>"; desc = "Toggle hlsearch"; }
             { key = "<F10>"; mode = "n"; action = ":noh<CR>"; desc = "Clear search highlight"; }
             { key = "<F11>"; mode = "n"; action = ":set spell!<CR>"; desc = "Toggle spell"; }
@@ -281,9 +313,14 @@ in
             # Explorador de archivos
             { key = "<leader>e"; mode = "n"; action = "<cmd>lua require('mini.files').open()<CR>"; desc = "Open mini.files"; }
             { key = "<leader>E"; mode = "n"; action = "<cmd>lua require('mini.files').open(vim.api.nvim_buf_get_name(0))<CR>"; desc = "mini.files (current)"; }
+
             # navegación
             { key = "s";  mode = [ "n" "x" "o" ]; action = "<cmd>lua require('flash').jump()<CR>"; desc = "Flash jump"; }
             { key = "S";  mode = [ "n" "x" "o" ]; action = "<cmd>lua require('flash').treesitter()<CR>"; desc = "Flash treesitter"; }
+            { key = "gd"; mode = "n"; action = "<cmd>lua require('fzf-lua').lsp_definitions()<CR>";     desc = "Go to definition"; }
+            { key = "gr"; mode = "n"; action = "<cmd>lua require('fzf-lua').lsp_references()<CR>";      desc = "Go to references"; }
+            { key = "gt"; mode = "n"; action = "<cmd>lua require('fzf-lua').lsp_typedefs()<CR>";        desc = "Go to type def"; }
+            { key = "gi"; mode = "n"; action = "<cmd>lua require('fzf-lua').lsp_implementations()<CR>"; desc = "Go to implementation"; }
 
             # lsp
             { key = "<leader>ls"; mode = "n"; action = "<cmd>lua require('fzf-lua').lsp_document_symbols()<CR>";  desc = "Doc symbols"; }
@@ -296,11 +333,6 @@ in
             { key = "<leader>le"; mode = "n"; action = "<cmd>lua vim.diagnostic.open_float()<CR>"; desc = "Show error"; }
             { key = "<leader>ln"; mode = "n"; action = "<cmd>lua vim.diagnostic.goto_next()<CR>";  desc = "Next diagnostic"; }
             { key = "<leader>lp"; mode = "n"; action = "<cmd>lua vim.diagnostic.goto_prev()<CR>";  desc = "Prev diagnostic"; }
-
-            { key = "gd"; mode = "n"; action = "<cmd>lua require('fzf-lua').lsp_definitions()<CR>";     desc = "Go to definition"; }
-            { key = "gr"; mode = "n"; action = "<cmd>lua require('fzf-lua').lsp_references()<CR>";      desc = "Go to references"; }
-            { key = "gt"; mode = "n"; action = "<cmd>lua require('fzf-lua').lsp_typedefs()<CR>";        desc = "Go to type def"; }
-            { key = "gi"; mode = "n"; action = "<cmd>lua require('fzf-lua').lsp_implementations()<CR>"; desc = "Go to implementation"; }
             { key = "K";  mode = "n"; action = "<cmd>lua vim.lsp.buf.hover()<CR>"; desc = "Hover docs"; }
 
             # Git
@@ -314,11 +346,20 @@ in
             { key = "<leader>hm"; mode = "n"; action = "<cmd>lua require('fzf-lua').manpages()<CR>"; desc = "Man pages"; }
             { key = "<leader>hc"; mode = "n"; action = "<cmd>lua require('fzf-lua').commands()<CR>"; desc = "Commands"; }
 
-            # QUickfix
+            # Quickfix
             { key = "<leader>qo"; mode = "n"; action = ":copen<CR>";  desc = "Open quickfix"; }
             { key = "<leader>qc"; mode = "n"; action = ":cclose<CR>"; desc = "Close quickfix"; }
             { key = "<leader>qn"; mode = "n"; action = ":cnext<CR>";  desc = "Next quickfix"; }
             { key = "<leader>qp"; mode = "n"; action = ":cprev<CR>";  desc = "Prev quickfix"; }
+
+            # Sessions
+            { key = "<leader>sl";  mode = "n"; action = ":SessionManager load_session<CR>";              desc = "Load session (picker)"; }
+            { key = "<leader>slt"; mode = "n"; action = ":SessionManager load_last_session<CR>";          desc = "Load last session"; }
+            { key = "<leader>slc"; mode = "n"; action = ":SessionManager load_current_dir_session<CR>";   desc = "Load cwd session"; }
+            { key = "<leader>slg"; mode = "n"; action = ":SessionManager load_git_session<CR>";            desc = "Load git session"; }
+            { key = "<leader>sc";  mode = "n"; action = ":SessionManager save_current_session<CR>";        desc = "Save session"; }
+            { key = "<leader>sd";  mode = "n"; action = ":SessionManager delete_session<CR>";              desc = "Delete session (picker)"; }
+            { key = "<leader>sdc"; mode = "n"; action = ":SessionManager delete_current_dir_session<CR>";  desc = "Delete cwd session"; }
 
             # zk
             { key = "<leader>zn"; mode = "n"; action = "<cmd>lua local nb = vim.env.ZK_NOTEBOOK_DIR; local title = vim.fn.input('Título: '); require('fzf-lua').fzf_exec('ls ' .. nb .. '/.zk/templates', { actions = { ['default'] = function(sel) require('zk').new({ dir = nb .. '/0_Inbox', title = title, template = sel[1] }) end } })<CR>";  desc = "Nueva nota (elegir template)"; }
@@ -328,14 +369,15 @@ in
             { key = "<leader>zl"; mode = "n"; action = "<cmd>ZkLinks<CR>";          desc = "Enlaces"; }
             { key = "<leader>zi"; mode = "n"; action = "<cmd>ZkInsertLink<CR>";     desc = "Insertar enlace"; }
             { key = "<leader>zg"; mode = "n"; action = "<cmd>lua require('fzf-lua').live_grep({ cwd = vim.env.ZK_NOTEBOOK_DIR })<CR>"; desc = "Grep en notas zk"; }
+            { key = "<leader>zp"; mode = "n"; action = "<cmd>tabnew | tcd $ZK_NOTEBOOK_DIR | lua require('fzf-lua').files()<CR>"; desc = "Open PKM vault"; }
           ];
         };
       };
     };
     myImpermanence.users.${user}.directories = [
       ".config/nvim"
-      ".local/share/nvim"
-      ".local/state/nvim"
+      ".local/state/nvf"
+      ".local/share/nvf"
       ".cache/nvim"
     ];
   };

@@ -16,7 +16,7 @@
           "Infrastructure" = lib.optionals true [
             (lib.optionalAttrs config.zitadel.enable    { Zitadel    = { icon = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/zitadel.png";    href = "https://${config.zitadel.subdominio}.${config.vars.dominio}"; }; })
             (lib.optionalAttrs config.vpn.enable        { Headscale  = { icon = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/headscale.png";   href = "https://${config.vpn.subdominio}.${config.vars.dominio}"; }; })
-            (lib.optionalAttrs config.mi_mailserver.enable { Mail    = { icon = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/email.png";       href = "https://mail.${config.vars.dominio}"; }; })
+            (lib.optionalAttrs config.correo.enable     { Mail    = { icon = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/email.png";       href = "https://mail.${config.vars.dominio}"; }; })
           ];
         }
         {

@@ -1,18 +1,16 @@
 { pkgs, lib, config, ... }:
 let
-  cfg = config.escritorio.niri;
-
   binds = ''
     binds {
       // Aplicaciones
       Mod+Return { spawn "kitty"; }
-      Mod+Print { spawn "screenshot-wayland"; }
-      Mod+Shift+Print { spawn "toggle-record-wayland"; }
+      Mod+Print { spawn "kooha"; }
 
       // Ventanas
       Mod+Q { close-window; }
       Mod+F { fullscreen-window; }
       Mod+Space { switch-focus-between-floating-and-tiling; }
+      Mod+n { spawn "noctalia" "msg" "bar-toggle"; }
 
       // Movimiento del foco
       Mod+H { focus-column-left; }
@@ -97,12 +95,20 @@ let
   '';
 in
 {
-  config = lib.mkIf cfg (lib.mkMerge [
-    {
-      programs.niri.enable = true;
-      programs.niri.package = pkgs.niri;
+  options.escritorio.niri = lib.mkEnableOption "Activa niri";
 
-      environment.etc."niri/config.kdl".text = configKdl;
-    }
-  ]);
+  config = lib.mkIf config.escritorio.niri {
+    xdg.portal = {
+      enable = true;
+      wlr.enable = true;
+      extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    };
+    services.gnome.gcr-ssh-agent.enable = false;
+    userPackages.escritorio = [ pkgs.wl-clipboard pkgs.brightnessctl pkgs.kooha ];
+
+    programs.niri.enable = true;
+    programs.niri.package = pkgs.niri;
+    environment.etc."niri/config.kdl".text = configKdl;
+    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".config/niri" ".cache/niri" ];
+  };
 }

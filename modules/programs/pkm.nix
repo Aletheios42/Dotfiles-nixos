@@ -26,7 +26,8 @@
       };
     }
     (lib.mkIf config.pkm.zk {
-      userPackages.pkm = [ pkgs.zk ];
+      userPackages.pkm = [ pkgs.pandoc pkgs.typst pkgs.zk ];
+      environment.variables.ZK_NOTEBOOK_DIR = config.pkm.dir;
       system.activationScripts.zkConfig = ''
       mkdir -p /home/${config.vars.usuarioPrincipal}/Documentos/Pkm/.zk
       cat > /home/${config.vars.usuarioPrincipal}/Documentos/Pkm/.zk/config.toml <<'EOF'

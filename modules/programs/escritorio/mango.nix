@@ -1,7 +1,5 @@
 { pkgs, lib, config, ... }:
 let
-  cfg = config.escritorio.mango;
-
   keybindings = ''
     # Terminal
     bind=SUPER,Return,spawn,kitty
@@ -40,8 +38,7 @@ let
     # Resize
     bind=SUPER,R,setkeymode,resize
     # Screenshot
-    bind=SUPER,Print,spawn,screenshot-wayland
-    bind=SUPER+SHIFT,Print,spawn,toggle-record-wayland
+    bind=SUPER,Print,spawn,kooha
     # Audio
     bind=NONE,XF86AudioRaiseVolume,spawn,wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%+
     bind=NONE,XF86AudioLowerVolume,spawn,wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%-
@@ -84,14 +81,19 @@ let
   '';
 in
 {
-  config = lib.mkIf cfg (lib.mkMerge [
-    {
-      programs.mango.enable = true;
+  options.escritorio.mango = lib.mkEnableOption "Activa mango";
 
-      # Config de sistema: mango la usa como fallback si no hay
-      # ~/.config/mango/config.conf. Sin Home Manager, cópiala tú
-      # una vez con: cp /etc/mango/config.conf ~/.config/mango/config.conf
-      environment.etc."mango/config.conf".text = configConf;
-    }
-  ]);
+  config = lib.mkIf config.escritorio.mango {
+    xdg.portal = {
+      enable = true;
+      wlr.enable = true;
+      extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    };
+    services.gnome.gcr-ssh-agent.enable = false;
+    userPackages.escritorio = [ pkgs.wl-clipboard pkgs.brightnessctl pkgs.kooha ];
+
+    programs.mango.enable = true;
+    environment.etc."mango/config.conf".text = configConf;
+    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".config/mango" ".cache/mango" ];
+  };
 }

@@ -66,10 +66,8 @@ in
   };
 
   config = lib.mkIf config.impermanencia.enable {
-    # Soporte para el initrd clásico basado en scripts
     boot.initrd.postDeviceCommands = lib.mkIf (!config.boot.initrd.systemd.enable) (lib.mkAfter wipeScript);
 
-    # Soporte para el nuevo initrd basado en systemd
     boot.initrd.systemd.services.wipe-btrfs-root = lib.mkIf config.boot.initrd.systemd.enable {
       description = "Wipe BTRFS root subvolume for impermanence";
       wantedBy = [ "initrd.target" ];

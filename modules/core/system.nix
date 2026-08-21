@@ -16,9 +16,16 @@
 
     system.stateVersion = config.sistema.version;
     nix.settings.download-buffer-size = 524288000; # 500MB
-    nix.settings.experimental-features = ["nix-command" "flakes"];
+    nix.settings.experimental-features = ["nix-command" "flakes" "configurable-impure-env"];
     nixpkgs.config.allowUnfree = true;
+    nix.settings = {
+      impure-env = [ "NIXPKGS_ALLOW_UNFREE=1" ];
+    };
+    environment.sessionVariables = {
+      NIXPKGS_ALLOW_UNFREE = "1";
+    };
     security.sudo.wheelNeedsPassword = false;
+    nix.settings.trusted-users = [ "root" "@wheel" ];
 
     programs.nix-index.enable = true;
     programs.nix-index-database.comma.enable = true;
@@ -45,6 +52,12 @@
       pkgs.zip pkgs.unzip
       pkgs.ethtool pkgs.dnsutils pkgs.net-tools pkgs.fping pkgs.netcat
     ];
+
+    services.logind.settings.Login = {
+      HandleLidSwitch = "ignore";
+      HandleLidSwitchExternalPower = "ignore";
+      HandleLidSwitchDocked = "ignore";
+    };
 
     environment.variables = {
       EDITOR    = "nvim";
