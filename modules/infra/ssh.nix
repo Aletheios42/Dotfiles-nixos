@@ -1,6 +1,6 @@
 { lib, config, ... }:
 {
-  options.mi_ssh = {
+  options.ssh = {
     enable = lib.mkEnableOption "Activa el modulo ssh";
     cliente.enable = lib.mkEnableOption "Activa el cliente ssh";
     servidor = {
@@ -12,8 +12,8 @@
     };
   };
 
-  config = lib.mkIf config.mi_ssh.enable (lib.mkMerge [
-    (lib.mkIf config.mi_ssh.cliente.enable {
+  config = lib.mkIf config.ssh.enable (lib.mkMerge [
+    (lib.mkIf config.ssh.cliente.enable {
       programs.ssh = {
         startAgent = true;
         extraConfig = ''
@@ -23,10 +23,10 @@
         '';
       };
     })
-    (lib.mkIf config.mi_ssh.servidor.enable {
+    (lib.mkIf config.ssh.servidor.enable {
       services.openssh = {
         enable = true;
-        ports = config.mi_ssh.servidor.puertos;
+        ports = config.ssh.servidor.puertos;
         settings = {
           PasswordAuthentication = false;
           KbdInteractiveAuthentication = false;
@@ -39,14 +39,14 @@
           type = "ed25519";
         }];
       };
-      networking.firewall.allowedTCPPorts = config.mi_ssh.servidor.puertos;
+      networking.firewall.allowedTCPPorts = config.ssh.servidor.puertos;
       myImpermanence.system.files = [
         "/etc/ssh/ssh_host_ed25519_key"
         "/etc/ssh/ssh_host_ed25519_key.pub"
       ];
     })
     {
-      myImpermanence.users.${config.vars.usuarioPrincipal} = {
+      myImpermanence.users.${config.usuarioPrincipal} = {
         directories = [ ".ssh" ];
       };
     }

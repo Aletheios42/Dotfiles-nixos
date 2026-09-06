@@ -1,7 +1,7 @@
 { pkgs, lib, config, ... }:
 let
-  user = config.vars.usuarioPrincipal;
-  home = config.vars.home;
+  user = config.usuarioPrincipal;
+  home = config.users.users.${config.usuarioPrincipal}.home;
 in
 {
   options.ai.llama = {

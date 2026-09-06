@@ -27,6 +27,11 @@
       default = "";
       description = "Zona horaria";
     }; 
+    dominio = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "Construye el fqdn";
+    };
   };
 
   config = lib.mkIf (config.red.enable) {
@@ -48,9 +53,11 @@
     networking = {
       hostName = config.red.hostname;
       nameservers = config.red.servidoresDns;
+      domain = config.red.dominio;
       firewall = {
         enable = config.red.firewall;
         allowedTCPPorts = config.red.puertosPermitidos;
+        backend = "iptables";
       };
       networkmanager = {
         enable = true;

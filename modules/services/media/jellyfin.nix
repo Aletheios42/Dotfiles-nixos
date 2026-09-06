@@ -10,14 +10,14 @@
 
   config = lib.mkIf config.media.musica.enable {
     assertions = [{
-      assertion = config.vars.dominio != "" && config.media.musica.subdominio != "";
+      assertion = config.network.dominio != "" && config.media.musica.subdominio != "";
       message = "Dominio y Subdominio son necesarios";
     }];
     services.jellyfin = {
       enable = true;
       openFirewall = true;
     };
-    services.nginx.virtualHosts."${config.media.musica.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.media.musica.subdominio}.${config.network.dominio}" = {
       forceSSL = true;
       useACMEHost = "wildcard";
       locations."/" = {

@@ -98,17 +98,9 @@ in
   options.escritorio.niri = lib.mkEnableOption "Activa niri";
 
   config = lib.mkIf config.escritorio.niri {
-    xdg.portal = {
-      enable = true;
-      wlr.enable = true;
-      extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-    };
-    services.gnome.gcr-ssh-agent.enable = false;
-    userPackages.escritorio = [ pkgs.wl-clipboard pkgs.brightnessctl pkgs.kooha ];
-
     programs.niri.enable = true;
     programs.niri.package = pkgs.niri;
     environment.etc."niri/config.kdl".text = configKdl;
-    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".config/niri" ".cache/niri" ];
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [ ".config/niri" ".cache/niri" ];
   };
 }

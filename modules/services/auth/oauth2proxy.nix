@@ -6,8 +6,8 @@
 
   config = lib.mkIf config.oauth2proxy.enable {
     assertions = [{
-      assertion = config.mi_sops.enable;
-      message = "oauth2proxy requiere sops (mi_sops.enable)";
+      assertion = config.sops.enable;
+      message = "oauth2proxy requiere sops (sops.enable)";
     }];
 
     sops.secrets."oauth2proxy/env"           = {};
@@ -21,9 +21,9 @@
       clientID          = "from-env";
       clientSecretFile  = config.sops.secrets."oauth2proxy/client_secret".path;
       cookie.secretFile = config.sops.secrets."oauth2proxy/cookie_secret".path;
-      email.domains     = [ config.vars.dominio ];
+      email.domains     = [ config.network.dominio ];
       extraConfig = {
-        oidc_issuer_url                      = "https://auth.${config.vars.dominio}";
+        oidc_issuer_url                      = "https://auth.${config.network.dominio}";
         insecure_oidc_allow_unverified_email = true;
         provider_display_name                = "Zitadel";
       };

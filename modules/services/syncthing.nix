@@ -13,7 +13,7 @@
   };
   config = lib.mkIf (config.syncthing.enable) {
     assertions = [{
-      assertion = config.vars.dominio != "" && config.syncthing.subdominio != "";
+      assertion = config.network.dominio != "" && config.syncthing.subdominio != "";
       message = "Dominio y Subdominio son necesarios";
     }];
     services.syncthing = {
@@ -24,7 +24,7 @@
       openDefaultPorts = true;
       guiAddress = "127.0.0.1:8384";
     };
-    services.nginx.virtualHosts."${config.syncthing.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.syncthing.subdominio}.${config.network.dominio}" = {
       useACMEHost = "wildcard";
       forceSSL = true;
       locations."/" = {

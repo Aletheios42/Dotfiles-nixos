@@ -84,16 +84,8 @@ in
   options.escritorio.mango = lib.mkEnableOption "Activa mango";
 
   config = lib.mkIf config.escritorio.mango {
-    xdg.portal = {
-      enable = true;
-      wlr.enable = true;
-      extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-    };
-    services.gnome.gcr-ssh-agent.enable = false;
-    userPackages.escritorio = [ pkgs.wl-clipboard pkgs.brightnessctl pkgs.kooha ];
-
     programs.mango.enable = true;
     environment.etc."mango/config.conf".text = configConf;
-    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".config/mango" ".cache/mango" ];
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [ ".config/mango" ".cache/mango" ];
   };
 }

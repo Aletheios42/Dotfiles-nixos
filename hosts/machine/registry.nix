@@ -1,5 +1,5 @@
+# machine
 [
-  ../../modules/core/vars.nix
   ../../modules/core/system.nix
   ../../modules/core/network.nix
   ../../modules/core/boot.nix
@@ -14,13 +14,18 @@
   ../../modules/infra/impermanence.nix
   ../../modules/infra/git.nix
 
-  ../../modules/programs/ai/opencode.nix
-  ../../modules/programs/ai/litellm.nix
-  ../../modules/programs/ai/llama.nix
+  ../../modules/programs/opencode.nix
+  ../../modules/services/ai/litellm.nix
+  ../../modules/services/ai/llama.nix
+  ../../modules/services/ai/open-design.nix
+
+  ../../modules/services/vpn/tailscale.nix
+
   ../../modules/programs/android.nix
   ../../modules/programs/comunicacion/cliente.nix
   ../../modules/programs/comunicacion/thunderbird.nix
-  ../../modules/programs/consigna/keepassxc.nix
+  ../../modules/programs/consigna/rbw.nix
+  ../../modules/programs/escritorio/wayland.nix
   ../../modules/programs/escritorio/mango.nix
   ../../modules/programs/escritorio/sway.nix
   ../../modules/programs/escritorio/noctalia.nix

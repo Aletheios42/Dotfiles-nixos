@@ -11,13 +11,13 @@
 
   config = lib.mkIf config.zitadel.enable {
     assertions = [{
-      assertion = config.mi_sops.enable;
-      message = "zitadel requiere sops (mi_sops.enable)";
+      assertion = config.sops.enable;
+      message = "zitadel requiere sops (sops.enable)";
     }];
 
     sops.secrets."zitadel/master_key" = {};
 
-    mi_postgres.enable = true;
+    postgres.enable = true;
 
     services.postgresql = {
       ensureDatabases = [ "zitadel" ];
@@ -32,7 +32,7 @@
       masterKeyFile = config.sops.secrets."zitadel/master_key".path;
       settings = {
         Port = 8081;
-        ExternalDomain = "${config.zitadel.subdominio}.${config.vars.dominio}";
+        ExternalDomain = "${config.zitadel.subdominio}.${config.network.dominio}";
         ExternalSecure = true;
         ExternalPort = 443;
         # Tell Zitadel to use Postgres instead of its default CockroachDB
@@ -57,7 +57,7 @@
 
     systemd.services.zitadel.after = [ "sops-nix.service" "postgresql.service" ];
 
-    services.nginx.virtualHosts."${config.zitadel.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.zitadel.subdominio}.${config.network.dominio}" = {
       useACMEHost = "wildcard";
       forceSSL = true;
       locations."/" = {

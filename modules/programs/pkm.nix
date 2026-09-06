@@ -21,7 +21,7 @@
       ];
     }
     {
-      myImpermanence.users.${config.vars.usuarioPrincipal} = {
+      myImpermanence.users.${config.usuarioPrincipal} = {
         directories = [ "Documentos/Pkm" ];
       };
     }
@@ -29,8 +29,8 @@
       userPackages.pkm = [ pkgs.pandoc pkgs.typst pkgs.zk ];
       environment.variables.ZK_NOTEBOOK_DIR = config.pkm.dir;
       system.activationScripts.zkConfig = ''
-      mkdir -p /home/${config.vars.usuarioPrincipal}/Documentos/Pkm/.zk
-      cat > /home/${config.vars.usuarioPrincipal}/Documentos/Pkm/.zk/config.toml <<'EOF'
+      mkdir -p /home/${config.usuarioPrincipal}/Documentos/Pkm/.zk
+      cat > /home/${config.usuarioPrincipal}/Documentos/Pkm/.zk/config.toml <<'EOF'
       [note]
       filename = "{{slug title}}"
       template = "default.md"
@@ -50,12 +50,12 @@
       # Warn when notes link here without backlinks.
       missing-backlink = { level = "warning", position = "bottom" }
       EOF
-      chown ${config.vars.usuarioPrincipal}:users /home/${config.vars.usuarioPrincipal}/Documentos/Pkm/.zk/config.toml
+      chown ${config.usuarioPrincipal}:users /home/${config.usuarioPrincipal}/Documentos/Pkm/.zk/config.toml
       '';
     })
     (lib.mkIf config.pkm.obsidian {
       userPackages.pkm = [ pkgs.obsidian ];
-      myImpermanence.users.${config.vars.usuarioPrincipal} = {
+      myImpermanence.users.${config.usuarioPrincipal} = {
         directories = [ ".config/obsidian" ];
       };
     })

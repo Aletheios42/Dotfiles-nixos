@@ -1,5 +1,5 @@
 { pkgs, lib, config , ... }: {
-  options.vpn = {
+  options.vpn.headscale = {
     enable = lib.mkEnableOption "activa headscale";
     usuario = lib.mkOption {
       type = lib.types.str;
@@ -11,14 +11,14 @@
     };
   };
 
-  config = lib.mkIf (config.vpn.enable) {
+  config = lib.mkIf (config.vpn.headscale.enable) {
     services.headscale = {
       enable = true;
       package = pkgs.headscale;
       port = 8085;
       address = "127.0.0.1";
       settings = {
-        server_url = "https://${config.vpn.subdominio}.${config.vars.dominio}";
+        server_url = "https://${config.vpn.headscale.subdominio}.${config.network.dominio}";
         ip_prefixes = [ "100.64.0.0/10" ];
         database.type = "sqlite3";
         database.sqlite.path = "/var/lib/headscale/db.sqlite";
@@ -29,7 +29,7 @@
       };
     };
 
-    services.nginx.virtualHosts."${config.vpn.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.vpn.headscale.subdominio}.${config.network.dominio}" = {
       useACMEHost = "wildcard";
       forceSSL = true;
       locations."/" = {

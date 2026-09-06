@@ -3,27 +3,26 @@
 imports = (import ./registry.nix) ++ [
   ./hardware-configuration.nix
   ./disk.nix
-  ../../modules/services/open-design.nix
 ];
 
+  userPackages.scripts = [
+    (import ../../modules/scripts/rfv.nix { inherit pkgs; })
+    (import ../../modules/scripts/tree-cat.nix { inherit pkgs; })
+  ];
   # hacer serccion de paquetes de dev
-  userPackages.dev = [ pkgs.gnumake pkgs.gdb pkgs.gcc pkgs.btop pkgs.systemd-manager-tui pkgs.magic-wormhole-rs pkgs.wget ];
+  userPackages.dev = [ pkgs.gnumake pkgs.gdb pkgs.gcc pkgs.magic-wormhole-rs ];
 
   sistema =  {
     enable = true;
     version = "26.05";
   };
 
-  myImpermanence.users.aletheios42.directories = [
-    "Documentos"
-    "Multimedia"
-  ];
   impermanencia = {
     enable = true;
     dispositivo = "/dev/mapper/crypted";
   };
 
-  mi_sops = {
+  sops = {
     enable = true;
     secretsFile = ../../secrets/machine.yaml;
     useSshKey = true;
@@ -33,13 +32,16 @@ imports = (import ./registry.nix) ++ [
     enable = true;
     loader = "monolito";
   };
+
   red = {
     enable = true;
     hostname = "machine";
     timeZone = "Europe/Madrid";
-    puertosPermitidos = [ 80 443 8621 8889 8890 11111 ];
+    puertosPermitidos = [ 80 443 8621 8889 8890 ];
+    dominio = "alejandropintosalcarazo.com";
   };
 
+  usuarioPrincipal = "aletheios42";
   usuarios = {
     aletheios42 = {
       hashedPassword = "$6$p7IwCtyd.a9aWxQ7$7curRU6NV9aUqMq4h7T0814y5jSPDDcrJpvBiLPADtnrc.kHPv8P2FsUQ06oAw1/hriWmQgoKujDQkhBV.3II1";
@@ -47,6 +49,14 @@ imports = (import ./registry.nix) ++ [
       grupos = [ "wheel" "networkmanager" "video" "input" "audio" "docker" "uucp" "dialout" "libvirtd" ];
       shell = pkgs.zsh;
     };
+  };
+
+  ai =  {
+    opencode.enable = true;
+    opendesign.enable = true;
+    opendesign.puerto = 7457;
+    litellm.enable = true;
+    litellm.puerto = 4000;
   };
 
   shell = {
@@ -60,7 +70,7 @@ imports = (import ./registry.nix) ++ [
 
   editor.enable = true;
 
-  mi_ssh = {
+  ssh = {
     enable = true;
     cliente.enable = true;
     servidor = {
@@ -70,6 +80,7 @@ imports = (import ./registry.nix) ++ [
   };
 
   escritorio = {
+    enable = true;
     mango = true;
     sway = true;
     # niri = true;
@@ -92,7 +103,6 @@ imports = (import ./registry.nix) ++ [
 
   bluetooth.enable = true;
   audio.enable = true;
-
   media.cliente = true;
 
   pkm = {
@@ -107,16 +117,21 @@ imports = (import ./registry.nix) ++ [
     thunderbird = true;
   };
 
-  firefox.enable = true;
-  chromium.enable = true;
-  tor.enable = true;
-  qutebrowser.enable = true;
+  navegadores = {
+    firefox.enable = true;
+    chromium.enable = true;
+    qutebrowser.enable = true;
+    tor.enable = true;
+  };
 
   lectura = {
     zathura = true;
     calibre = true;
     koreader = true;
   };
+
   android.enable = true;
   labctl.enable = true;
+  vpn.tailscale.enable = true;
+  rbw.enable = true;
 }

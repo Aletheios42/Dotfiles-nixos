@@ -104,30 +104,27 @@ let
       bindsym k resize shrink height 10 px
       bindsym l resize grow width 10 px
     }
-
-  '' + (lib.optionalString config.escritorio.noctalia ''
+  '' 
+  + (lib.optionalString config.rbw.enable ''
+    bindsym Mod4+t exec --no-startup-id "rofi-rbw"
+  '') 
+  + (lib.optionalString config.escritorio.noctalia ''
     exec noctalia
     exec sh -c 'sleep 2 && noctalia msg wallpaper-set /nix/store/pc3lfxmg4l7b45wwfdadr3zsknzjmcb7-source/resources/fondo.jpg'
     bindsym Mod4+Escape exec noctalia msg session lock
     bindsym Mod4+d exec noctalia msg panel-toggle launcher
-  '') + ''
+  '') 
+  + ''
     exec "${pkgs.dbus}/bin/dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP XDG_SESSION_TYPE NIXOS_OZONE_WL XCURSOR_THEME XCURSOR_SIZE; systemctl --user reset-failed && systemctl --user start sway-session.target && swaymsg -mt subscribe '[]' || true && systemctl --user stop sway-session.target"
   '';
+
 in
 {
   options.escritorio.sway = lib.mkEnableOption "Activa sway";
 
   config = lib.mkIf config.escritorio.sway {
-    xdg.portal = {
-      enable = true;
-      wlr.enable = true;
-      extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-    };
-    services.gnome.gcr-ssh-agent.enable = false;
-    userPackages.escritorio = [ pkgs.wl-clipboard pkgs.brightnessctl pkgs.kooha ];
-
     programs.sway.enable = true;
     environment.etc."sway/config".text = swayConfig;
-    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".config/sway" ".cache/sway" ];
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [ ".config/sway" ".cache/sway" ];
   };
 }

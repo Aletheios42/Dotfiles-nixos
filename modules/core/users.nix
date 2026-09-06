@@ -4,6 +4,11 @@
     type = lib.types.attrsOf (lib.types.listOf lib.types.package);
     default = {};
   };
+  options.usuarioPrincipal = lib.mkOption {
+    type = lib.types.str;
+    default = "";
+    description = "Nombre del usuario principal del sistema";
+  };
   options.usuarios = lib.mkOption {
     type = lib.types.attrsOf ( lib.types.submodule {
       options = {
@@ -33,10 +38,16 @@
   };
 
   config = lib.mkIf (config.usuarios != {}) {
-    assertions = [{
-      assertion = lib.any (u: lib.elem "wheel" u.grupos) (lib.attrValues config.usuarios);
-      message = "Debe haber al menos un usuario con grupo wheel";
-    }];
+    assertions = [
+      {
+        assertion = lib.any (u: lib.elem "wheel" u.grupos) (lib.attrValues config.usuarios);
+        message = "users.nix: Debe haber al menos un usuario con grupo wheel";
+      }
+      {
+        assertion = config.usuarioPrincipal != "";
+        message = "users.nix: Necesitas especificar un usuarioPintipal";
+      }
+    ];
 
     users.groups = lib.mapAttrs (nombre: _: {}) config.usuarios;
     users.mutableUsers = false;

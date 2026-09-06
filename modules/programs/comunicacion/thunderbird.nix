@@ -1,6 +1,6 @@
 { pkgs, lib, config, ... }:
 let
-  user = config.vars.usuarioPrincipal;
+  user = config.usuarioPrincipal;
   thunderbirdPrefs = ''
     user_pref("ui.systemUsesDarkTheme", 1);
     user_pref("browser.theme.content-theme", 0);

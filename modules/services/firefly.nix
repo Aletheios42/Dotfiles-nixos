@@ -16,17 +16,17 @@
   config = lib.mkIf (config.firefly.enable) {
     assertions = [
       {
-        assertion = config.vars.dominio != "" && config.firefly.subdominio != "" && config.firefly.usuario != "";
+        assertion = config.network.dominio != "" && config.firefly.subdominio != "" && config.firefly.usuario != "";
         message = "Dominio, subdominio y usuario deben estar especificados.";
       }
       {
-        assertion = config.mi_sops.enable;
-        message = "firefly requiere sops (mi_sops.enable)";
+        assertion = config.sops.enable;
+        message = "firefly requiere sops (sops.enable)";
       }
     ];
     sops.secrets."firefly/app_key" = {};
 
-    mi_postgres.enable = true;
+    postgres.enable = true;
 
     services.postgresql = {
       ensureDatabases = [ "firefly-iii" ];
@@ -38,12 +38,12 @@
 
     services.firefly-iii = {
       enable = true;
-      virtualHost = "${config.firefly.subdominio}.${config.vars.dominio}";
+      virtualHost = "${config.firefly.subdominio}.${config.network.dominio}";
       enableNginx = true;
       settings = {
         APP_ENV = "production";
         APP_KEY_FILE = config.sops.secrets."firefly/app_key".path;
-        SITE_OWNER = "admin@${config.vars.dominio}";
+        SITE_OWNER = "admin@${config.network.dominio}";
         DB_CONNECTION = "pgsql";
         DB_HOST = "/run/postgresql";
         DB_DATABASE = "firefly-iii";
@@ -60,7 +60,7 @@
       wants = [ "sops-nix.service" ];
     };
 
-    services.nginx.virtualHosts."${config.firefly.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.firefly.subdominio}.${config.network.dominio}" = {
       useACMEHost = "wildcard";
       forceSSL = true;
       locations."/" = {

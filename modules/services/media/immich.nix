@@ -15,7 +15,7 @@
       mediaLocation = "/var/lib/immich/media";
       database.enable = true;
     };
-    services.nginx.virtualHosts."${config.media.galeria.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.media.galeria.subdominio}.${config.network.dominio}" = {
       useACMEHost = "wildcard";
       forceSSL = true;
       locations."/" = {

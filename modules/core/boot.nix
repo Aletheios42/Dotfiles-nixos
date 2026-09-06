@@ -30,6 +30,9 @@
         efiInstallAsRemovable = true;
       };
       boot.loader.efi.canTouchEfiVariables = false;
+      boot.kernel.sysctl = {
+        "kernel.unprivileged_userns_clone" = 1;
+      };
     })
   ]);
 }

@@ -1,14 +1,5 @@
 { pkgs, lib, config, ... }:
 let
-  user = config.vars.usuarioPrincipal;
-
-  vaultwardenUrl = "https://${config.vaultwarden.subdominio}.${config.vars.dominio}";
-  bitwardenPolicy = {
-    environment = {
-      base = vaultwardenUrl;
-    };
-  };
-
   ublockFilters = [
     "user-filters" "ublock-filters" "ublock-badware" "ublock-privacy"
     "ublock-quick-fixes" "ublock-unbreak" "easylist" "easyprivacy"
@@ -17,7 +8,7 @@ let
   ];
 in
 {
-  options.firefox = {
+  options.navegadores.firefox = {
     enable = lib.mkEnableOption "Activa Firefox con políticas declarativas";
     default = lib.mkOption {
       type = lib.types.bool;
@@ -26,7 +17,7 @@ in
     };
   };
 
-  config = lib.mkIf config.firefox.enable {
+  config = lib.mkIf config.navegadores.firefox.enable {
     programs.firefox = {
       enable = true;
       package = pkgs.firefox;
@@ -40,16 +31,12 @@ in
           "ui.systemUsesDarkTheme"      = 1;
           "browser.theme.content-theme" = 0;
           "browser.theme.toolbar-theme" = 0;
-          "browser.download.dir"        = "/home/${user}/Downloads";
+          "browser.download.dir"        = "/home/${config.usuarioPrincipal}/Descargas";
           "browser.download.folderList" = 2;
         };
         ExtensionSettings = {
           "uBlock0@raymondhill.net" = {
             install_url       = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
-            installation_mode = "force_installed";
-          };
-          "{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
-            install_url       = "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi";
             installation_mode = "force_installed";
           };
           "jid1-MnnxcxisBPnSXQ@jetpack" = {
@@ -65,13 +52,11 @@ in
           "uBlock0@raymondhill.net".adminSettings = {
             toOverwrite.filterLists = ublockFilters;
           };
-        } // lib.optionalAttrs (config ? vaultwarden && config.vaultwarden.enable) {
-          "{446900e4-71c2-419f-a6a7-df9c091e268b}" = bitwardenPolicy;
         };
       };
     };
 
-    xdg.mime = lib.mkIf config.firefox.default {
+    xdg.mime = lib.mkIf config.navegadores.firefox.default {
       enable = true;
       defaultApplications = {
         "x-scheme-handler/http"  = "firefox.desktop";
@@ -79,9 +64,8 @@ in
       };
     };
 
-    myImpermanence.users.${user}.directories = [
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [
       ".mozilla/firefox"
-      "Downloads"
     ];
   };
 }

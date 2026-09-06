@@ -17,8 +17,8 @@
   config = lib.mkIf config.monitoring.enable {
     assertions = [
       {
-        assertion = config.mi_sops.enable;
-        message = "monitoring requiere sops (mi_sops.enable)";
+        assertion = config.sops.enable;
+        message = "monitoring requiere sops (sops.enable)";
       }
       {
         assertion = config.monitoring.subdominio != "";
@@ -59,13 +59,13 @@
       };
 
       environment = {
-        ZO_ROOT_USER_EMAIL = "admin@${config.vars.dominio}";
+        ZO_ROOT_USER_EMAIL = "admin@${config.network.dominio}";
         ZO_HTTP_PORT = toString config.monitoring.port;
         ZO_DATA_DIR = "/var/lib/openobserve/data";
       };
     };
 
-    services.nginx.virtualHosts."${config.monitoring.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.monitoring.subdominio}.${config.network.dominio}" = {
       useACMEHost = "wildcard";
       forceSSL = true;
       locations."/" = {

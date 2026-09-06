@@ -1,7 +1,4 @@
 { pkgs, lib, config, ... }:
-let
-  user = config.vars.usuarioPrincipal;
-in
 {
   options.comunicacion.cliente = lib.mkEnableOption "Descarga paquetes basicos de comunicacion";
 
@@ -23,10 +20,11 @@ in
       pkgs.element-desktop
     ];
 
-    myImpermanence.users.${user} = {
+    myImpermanence.users.${config.usuarioPrincipal} = {
       directories = [
         ".config/discord"
         ".config/WhatSie"
+        ".local/share/org.keshavnrj.ubuntu"
         ".config/Slack"
         ".config/telegram-desktop"
         ".local/share/TelegramDesktop"

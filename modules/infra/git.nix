@@ -1,4 +1,7 @@
 { pkgs, lib, config, ... }:
+let
+  home = config.users.users.${config.usuarioPrincipal}.home;
+in
 {
   options.git = {
     enable = lib.mkEnableOption "Habilita git , requiere de tu email y usuario";
@@ -15,7 +18,7 @@
 
   config = lib.mkIf(config.git.enable) {
     assertions = [{
-      assertion = config.mi_sops.enable;
+      assertion = config.sops.enable;
       message = "Git requiere sops para gestionar el email";
     }];
 
@@ -27,7 +30,7 @@
       config = {
         user.name = config.git.name;
         init.defaultBranch = "master";
-        credential.helper = "store --file=${config.vars.home}/.config/git/credentials";
+        credential.helper = "store --file=${home}/.config/git/credentials";
 
         transfer.fsckObjects = true;
         core.autocrlf = false;
@@ -44,13 +47,13 @@
     system.activationScripts.gitConfig = {
       deps = [ "persist-files" "users" "setupSecrets" ];
       text = ''
-      mkdir -p ${config.vars.home}/.config/git
+      mkdir -p ${home}/.config/git
       email=$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."git/email".path} 2>/dev/null || echo "INSERT_EMAIL")
       ${lib.optionalString config.git.githubToken ''
       token=$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."github/token".path} 2>/dev/null || echo "")
       ''}
 
-      ${pkgs.coreutils}/bin/cat > ${config.vars.home}/.config/git/config <<EOF
+      ${pkgs.coreutils}/bin/cat > ${home}/.config/git/config <<EOF
       [user]
           email = "$email"
       EOF
@@ -58,16 +61,16 @@
       # Pre-popular credenciales git para GitHub (credential.helper = store)
       ${lib.optionalString config.git.githubToken ''
       if [ -n "$token" ]; then
-        echo "https://${config.git.name}:$token@github.com" > ${config.vars.home}/.config/git/credentials
+        echo "https://${config.git.name}:$token@github.com" > ${home}/.config/git/credentials
       fi
       ''}
 
-      ${pkgs.coreutils}/bin/chown -R ${config.vars.usuarioPrincipal}:${config.vars.usuarioPrincipal} ${config.vars.home}/.config/git
-      ${pkgs.coreutils}/bin/chown ${config.vars.usuarioPrincipal}:${config.vars.usuarioPrincipal} ${config.vars.home}/.config/git/credentials 2>/dev/null || true
+      ${pkgs.coreutils}/bin/chown -R ${config.usuarioPrincipal}:${config.usuarioPrincipal} ${home}/.config/git
+      ${pkgs.coreutils}/bin/chown ${config.usuarioPrincipal}:${config.usuarioPrincipal} ${home}/.config/git/credentials 2>/dev/null || true
     '';
     };
 
-    myImpermanence.users.${config.vars.usuarioPrincipal} = {
+    myImpermanence.users.${config.usuarioPrincipal} = {
       directories = [ ".config/git" ];
     };
   };

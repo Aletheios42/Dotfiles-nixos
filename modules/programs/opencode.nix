@@ -1,7 +1,7 @@
 { pkgs, lib, config, open-design, ... }:
 let
-  user = config.vars.usuarioPrincipal;
-  home = config.vars.home;
+  user = config.usuarioPrincipal;
+  home = config.users.users.${config.usuarioPrincipal}.home;
 
   codebaseMem = pkgs.stdenv.mkDerivation {
     name = "codebase-memory-mcp-0.8.1";
@@ -31,7 +31,7 @@ let
     "\"context7\": {\"type\": \"remote\", \"url\": \"https://mcp.context7.com/mcp\"}"
     "\"codebase\": {\"type\": \"local\", \"command\": [\"${codebaseMem}/bin/codebase-memory-mcp\"]}"
     "\"memoryGraph\": {\"type\": \"local\", \"command\": [\"${mcpKnowledgeGraph}/bin/mcp-knowledge-graph\", \"--memory-path\", \"${home}/.aim/memory.jsonl\"]}"
-    "\"open-design\": {\"type\": \"local\", \"command\": [\"${odDaemon}/bin/od\", \"mcp\", \"--daemon-url\", \"http://127.0.0.1:${toString config.opendesign.port}\"]}"
+    "\"open-design\": {\"type\": \"local\", \"command\": [\"${odDaemon}/bin/od\", \"mcp\", \"--daemon-url\", \"http://127.0.0.1:${toString config.ai.opendesign.puerto}\"]}"
     "\"playwright\": {\"type\": \"local\", \"command\": [\"${pkgs.playwright-mcp}/bin/playwright-mcp\"]}"
   ];
 in
@@ -40,8 +40,8 @@ in
 
   config = lib.mkIf config.ai.opencode.enable {
     assertions = [{
-      assertion = config.mi_sops.enable;
-      message = "ai.opencode requiere sops (mi_sops.enable) para las claves de proveedores";
+      assertion = config.sops.enable;
+      message = "ai.opencode requiere sops (sops.enable) para las claves de proveedores";
     }];
 
     userPackages.ai = [ pkgs.opencode codebaseMem mcpKnowledgeGraph pkgs.playwright-mcp ];
@@ -84,7 +84,7 @@ in
             "openai-compatible": {
               "npm": "@ai-sdk/openai-compatible",
               "name": "LiteLLM proxy",
-              "options": { "baseURL": "http://127.0.0.1:${toString config.ai.litellm.port}/v1", "apiKey": "$ll_key" },
+              "options": { "baseURL": "http://127.0.0.1:${toString config.ai.litellm.puerto}/v1", "apiKey": "$ll_key" },
               "models": {
                 "deepseek-flash": {
                   "name": "DeepSeek Flash (via LiteLLM)",
@@ -93,10 +93,6 @@ in
                 "deepseek-pro": {
                   "name": "DeepSeek Pro (via LiteLLM)",
                   "limit": { "context": 65536, "output": 8192 }
-                },
-                "work": {
-                  "name": "Local (según work-model.gguf)",
-                  "limit": { "context": 65536, "output": 8192 }
                 }
               }
             }''}
@@ -104,11 +100,11 @@ in
           "mcp": {
             ${mcpEntries}
           }${lib.optionalString (config ? ai && config.ai ? litellm && config.ai.litellm.enable) '',
-          "model": "openai-compatible/work",
+          "model": "openai-compatible/deepseek-flash",
           "agent": {
             "build": {
               "mode": "primary",
-              "model": "openai-compatible/work",
+              "model": "openai-compatible/deepseek-flash",
               "permission": { "edit": "allow", "bash": "allow" }
             },
             "plan": {

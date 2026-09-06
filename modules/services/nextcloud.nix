@@ -15,21 +15,21 @@
 
   config = lib.mkIf (config.nextcloud.enable) {
     assertions = [{
-      assertion = config.vars.dominio != "" && config.nextcloud.subdominio != "" && config.nextcloud.usuario != "";
+      assertion = config.network.dominio != "" && config.nextcloud.subdominio != "" && config.nextcloud.usuario != "";
       message = "necesitas un dominio, subdominio y usuario para nextlcoud";
     }
     {
-      assertion = config.mi_sops.enable;
-      message = "nextcloud requiere sops (mi_sops.enable)";
+      assertion = config.sops.enable;
+      message = "nextcloud requiere sops (sops.enable)";
     }];
 
     sops.secrets."nextcloud/admin_pass" = {};
 
-    mi_postgres.enable = true;
+    postgres.enable = true;
 
     services.nextcloud = {
       enable = true;
-      hostName = "${config.nextcloud.subdominio}.${config.vars.dominio}";
+      hostName = "${config.nextcloud.subdominio}.${config.network.dominio}";
       https = true;
       package = pkgs.nextcloud33;
       config = {
@@ -40,7 +40,7 @@
       database.createLocally = true;
     };
 
-    services.nginx.virtualHosts."${config.nextcloud.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.nextcloud.subdominio}.${config.network.dominio}" = {
       useACMEHost = "wildcard";
       forceSSL = true;
     };

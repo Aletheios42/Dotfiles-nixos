@@ -1,6 +1,6 @@
 { pkgs, lib, config, ... }:
 {
-  options.mi_sops = {
+  options.sops = {
     enable = lib.mkEnableOption "Activa Sops-Nix con cifrado age";
     secretsFile = lib.mkOption {
       type = lib.types.path;
@@ -17,18 +17,18 @@
     };
   };
 
-  config = lib.mkIf config.mi_sops.enable {
+  config = lib.mkIf config.sops.enable {
     userPackages.secretos = [ pkgs.sops pkgs.age ];
     sops = {
-      defaultSopsFile = config.mi_sops.secretsFile;
+      defaultSopsFile = config.sops.secretsFile;
       age = lib.mkMerge [
-        (lib.mkIf config.mi_sops.useSshKey {
+        (lib.mkIf config.sops.useSshKey {
           sshKeyPaths = [
             "/persist/etc/ssh/ssh_host_ed25519_key"
             "/etc/ssh/ssh_host_ed25519_key"
           ];
         })
-        (lib.mkIf (!config.mi_sops.useSshKey) {
+        (lib.mkIf (!config.sops.useSshKey) {
           keyFile = "/var/lib/sops-nix/key.txt";
           generateKey = false;
         })
@@ -37,9 +37,9 @@
     };
 
     myImpermanence.system.directories =
-      lib.optional (!config.mi_sops.useSshKey) "/var/lib/sops-nix";
+      lib.optional (!config.sops.useSshKey) "/var/lib/sops-nix";
 
     # Persistir la clave age del administrador para poder editar/re-encriptar secrets
-    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".config/sops" ];
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [ ".config/sops" ];
   };
 }

@@ -1,7 +1,4 @@
 { pkgs, lib, config, ... }:
-let
-  user = config.vars.usuarioPrincipal;
-in
 {
   options.rbw = {
     enable = lib.mkEnableOption "Activa cliente Bitwarden CLI (rbw)";
@@ -16,9 +13,10 @@ in
     userPackages.seguridad = [
       pkgs.rbw
       config.rbw.pinentry
+      pkgs.rofi-rbw-wayland
     ];
 
-    myImpermanence.users.${user}.directories = [
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [
       ".config/rbw"
       ".cache/rbw"
     ];

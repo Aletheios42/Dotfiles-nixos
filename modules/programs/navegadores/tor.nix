@@ -1,19 +1,16 @@
 { pkgs, lib, config, ... }:
-let
-  user = config.vars.usuarioPrincipal;
-in
 {
-  options.tor = {
+  options.navegadores.tor = {
     enable = lib.mkEnableOption "Activa Tor y Tor Browser";
   };
 
-  config = lib.mkIf config.tor.enable {
+  config = lib.mkIf (config.navegadores.tor.enable) {
     userPackages.navegadores = [
       pkgs.tor
       pkgs.tor-browser
     ];
 
-    myImpermanence.users.${user}.directories = [
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [
       ".local/share/tor-browser"
     ];
   };

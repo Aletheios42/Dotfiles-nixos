@@ -50,8 +50,8 @@
         message = "mailserver: necesitas al menos un dominio en correo.dominios";
       }
       {
-        assertion = config.mi_sops.enable;
-        message = "mailserver requiere sops (mi_sops.enable) para las credenciales de Mailgun";
+        assertion = config.sops.enable;
+        message = "mailserver requiere sops (sops.enable) para las credenciales de Mailgun";
       }
     ];
 

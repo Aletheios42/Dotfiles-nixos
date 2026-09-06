@@ -1,14 +1,6 @@
 { pkgs, lib, config, ... }:
 let
-  user = config.vars.usuarioPrincipal;
-
-  vaultwardenUrl = "https://${config.vaultwarden.subdominio}.${config.vars.dominio}";
-  bitwardenPolicy = {
-    environment = {
-      base = vaultwardenUrl;
-    };
-  };
-
+  user = config.usuarioPrincipal;
   ublockFilters = [
     "user-filters" "ublock-filters" "ublock-badware" "ublock-privacy"
     "ublock-quick-fixes" "ublock-unbreak" "easylist" "easyprivacy"
@@ -17,7 +9,7 @@ let
   ];
 in
 {
-  options.chromium = {
+  options.navegadores.chromium = {
     enable = lib.mkEnableOption "Activa Chromium con extensiones y políticas";
     default = lib.mkOption {
       type = lib.types.bool;
@@ -26,7 +18,7 @@ in
     };
   };
 
-  config = lib.mkIf config.chromium.enable {
+  config = lib.mkIf config.navegadores.chromium.enable {
     userPackages.navegadores = [ pkgs.chromium ];
     nixpkgs.config.chromium.commandLineArgs = [ "--force-dark-mode" "--enable-features=WebUIDarkMode" ];
 
@@ -34,7 +26,6 @@ in
       enable = true;
       extensions = [
         "cjpalhdlnbpafiamejdnhcphjbkeiagm" # uBlock Origin
-        "nngceckbapebfimnlniiiahkandclblb" # Bitwarden
         "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" # Privacy Badger
         "edibdbjcniadpccecjdfdjjppcpchdlm" # I still don't care about cookies
       ];
@@ -51,13 +42,11 @@ in
           "cjpalhdlnbpafiamejdnhcphjbkeiagm".adminSettings = {
             toOverwrite.filterLists = ublockFilters;
           };
-        } // lib.optionalAttrs (config ? vaultwarden && config.vaultwarden.enable) {
-          "nngceckbapebfimnlniiiahkandclblb" = bitwardenPolicy;
-        };
+        }; 
       };
     };
 
-    xdg.mime = lib.mkIf config.chromium.default {
+    xdg.mime = lib.mkIf config.navegadores.chromium.default {
       enable = true;
       defaultApplications = {
         "x-scheme-handler/http"  = "chromium.desktop";

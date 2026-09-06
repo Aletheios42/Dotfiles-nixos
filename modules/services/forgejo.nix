@@ -9,7 +9,7 @@
   };
 
   config = lib.mkIf (config.forgejo.enable) {
-    mi_postgres.enable = true;
+    postgres.enable = true;
 
     services.forgejo = {
       enable = true;
@@ -17,8 +17,8 @@
       database.createDatabase = true;
       settings = {
         server = {
-          DOMAIN = "${config.forgejo.subdominio}.${config.vars.dominio}";
-          ROOT_URL = "https://${config.forgejo.subdominio}.${config.vars.dominio}";
+          DOMAIN = "${config.forgejo.subdominio}.${config.network.dominio}";
+          ROOT_URL = "https://${config.forgejo.subdominio}.${config.network.dominio}";
           HTTP_PORT = 3001;
         };
         service.DISABLE_REGISTRATION = true;
@@ -26,7 +26,7 @@
       };
     };
 
-    services.nginx.virtualHosts."${config.forgejo.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.forgejo.subdominio}.${config.network.dominio}" = {
       useACMEHost = "wildcard";
       forceSSL = true;
       locations."/" = {

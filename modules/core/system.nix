@@ -50,7 +50,9 @@
       pkgs.neovim
       pkgs.openssl
       pkgs.zip pkgs.unzip
+      pkgs.btop pkgs.systemd-manager-tui  pkgs.wget 
       pkgs.ethtool pkgs.dnsutils pkgs.net-tools pkgs.fping pkgs.netcat
+      pkgs.xdg-user-dirs
     ];
 
     services.logind.settings.Login = {
@@ -67,8 +69,6 @@
       GTK_THEME = "Adwaita:dark";
     };
     environment.shellAliases = {};
-    environment.pathsToLink = [
-      "/share/zsh" # util para completions
-    ];
+    environment.pathsToLink = [ "/share/zsh" ];
   };
 }

@@ -1,5 +1,6 @@
 { pkgs, lib, config, ... }:
 let
+  home = config.users.users.${config.usuarioPincipal}.home;
   zshPreamble = ''
     zstyle ':completion:*' menu no
     zstyle ':completion:*' use-cache on
@@ -56,14 +57,16 @@ in
     };
     environment.etc."zshrc.local".text = zshBindings;
     system.activationScripts.zshrc-user = ''
-      PERSIST_TARGET="/persist/home/${config.vars.usuarioPrincipal}/.zshrc"
-      if [ -L "/home/${config.vars.usuarioPrincipal}/.zshrc" ] && [ -r "$PERSIST_TARGET" ]; then
+      PERSIST_TARGET="/persist/home/${config.usuarioPrincipal}/.zshrc"
+      if [ -L "/home/${config.usuarioPrincipal}/.zshrc" ] && [ -r "$PERSIST_TARGET" ]; then
         echo 'source /etc/zshrc' > "$PERSIST_TARGET"
-      elif [ ! -f "/home/${config.vars.usuarioPrincipal}/.zshrc" ]; then
-        echo 'source /etc/zshrc' > "/home/${config.vars.usuarioPrincipal}/.zshrc"
-        chown ${config.vars.usuarioPrincipal}:users "/home/${config.vars.usuarioPrincipal}/.zshrc"
+      elif [ ! -f "/home/${config.usuarioPrincipal}/.zshrc" ]; then
+        echo 'source /etc/zshrc' > "/home/${config.usuarioPrincipal}/.zshrc"
+        chown ${config.usuarioPrincipal}:users "/home/${config.usuarioPrincipal}/.zshrc"
       fi
     '';
-    myImpermanence.users.${config.vars.usuarioPrincipal} = { files = [ ".zshrc" ".zsh_history" ]; directories = [ ".zcompcache" ]; };
+    myImpermanence.users.${config.usuarioPrincipal} = {
+      files = [ ".zshrc" ".zsh_history" ]; 
+      directories = [ ".zcompcache" ]; };
   };
 }

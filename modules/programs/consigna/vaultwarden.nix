@@ -16,20 +16,20 @@
 
   config = lib.mkIf config.vaultwarden.enable {
     assertions = [{
-      assertion = config.vars.dominio != "";
-      message = "vaultwarden requiere que config.vars.dominio esté definido";
+      assertion = config.red.dominio != "";
+      message = "vaultwarden requiere que config.network.dominio esté definido";
     }];
 
     services.vaultwarden = {
       enable = true;
       config = {
-        DOMAIN = "https://${config.vaultwarden.subdominio}.${config.vars.dominio}";
+        DOMAIN = "https://${config.vaultwarden.subdominio}.${config.red.dominio}";
         SIGNUPS_ALLOWED = false;
         ROCKET_PORT = config.vaultwarden.puerto;
       };
     };
 
-    services.nginx.virtualHosts."${config.vaultwarden.subdominio}.${config.vars.dominio}" = {
+    services.nginx.virtualHosts."${config.vaultwarden.subdominio}.${config.red.dominio}" = {
       useACMEHost = "wildcard";
       forceSSL = true;
       locations."/" = {

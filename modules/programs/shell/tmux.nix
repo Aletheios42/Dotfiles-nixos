@@ -27,6 +27,6 @@ in
 
   config = lib.mkIf config.shell.tmux {
     userPackages.tmux = [ tmuxPkg ];
-    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".config/tmux" ".local/share/tmux" ];
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [ ".config/tmux" ".local/share/tmux" ];
   };
 }

@@ -11,7 +11,7 @@
     system.activationScripts.kittyConfig = {
       deps = [ "users" ];
       text = ''
-        KITTY_CFG="/home/${config.vars.usuarioPrincipal}/.config/kitty"
+        KITTY_CFG="/home/${config.usuarioPrincipal}/.config/kitty"
         mkdir -p "$KITTY_CFG"
         cat > "$KITTY_CFG/kitty.conf" << 'KITTYEOF'
 scrollback_lines -1
@@ -19,9 +19,9 @@ enable_audio_bell no
 confirm_os_window_close 0
 map shift+enter send_text all \x1b\r
 KITTYEOF
-        chown ${config.vars.usuarioPrincipal}:users "$KITTY_CFG/kitty.conf"
+        chown ${config.usuarioPrincipal}:users "$KITTY_CFG/kitty.conf"
       '';
     };
-    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".config/kitty" ];
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [ ".config/kitty" ];
   };
 }

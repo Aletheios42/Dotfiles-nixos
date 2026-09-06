@@ -39,7 +39,7 @@
         };
         server1 = nixpkgs.lib.nixosSystem {
           inherit system;
-          specialArgs = { inherit noctalia; };
+          specialArgs = { };
           modules = [ ./hosts/server1/configuration.nix ] ++ commonModules;
         };
       };

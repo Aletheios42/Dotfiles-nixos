@@ -4,6 +4,6 @@
 
   config = lib.mkIf config.shell.direnv {
     userPackages.direnv = [ pkgs.direnv pkgs.nix-direnv ];
-    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".config/direnv" ];
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [ ".config/direnv" ];
   };
 }

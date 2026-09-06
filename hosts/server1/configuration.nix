@@ -10,17 +10,12 @@
     version = "26.05";
   };
 
-  vars = {
-    dominio = "alejandropintosalcarazo.com";
-  };
-
-  myImpermanence.users.aletheios42.directories = [ ];
   impermanencia = {
     enable = true;
     dispositivo = "/dev/mapper/crypted";
   };
 
-  mi_sops = {
+  sops = {
     enable = true;
     secretsFile = ../../secrets/server1.yaml;
     useSshKey = true;
@@ -31,14 +26,17 @@
     loader = "monolito";
   };
 
+  cf-ddns.enable = true;
   red = {
     enable = true;
     hostname = "server1";
     firewall = true;
     puertosPermitidos = [ 80 443 25 143 465 587 993 995];
     timeZone = "Europe/Madrid";
+    dominio = "alejandropintosalcarazo.com";
   };
 
+  usuarioPrincipal = "aletheios42";
   usuarios = {
     aletheios42 = {
       hashedPassword = "$6$p7IwCtyd.a9aWxQ7$7curRU6NV9aUqMq4h7T0814y5jSPDDcrJpvBiLPADtnrc.kHPv8P2FsUQ06oAw1/hriWmQgoKujDQkhBV.3II1";
@@ -59,7 +57,7 @@
 
   editor.enable = true;
 
-  mi_ssh = {
+  ssh = {
     enable = true;
     cliente.enable = true;
     servidor = {
@@ -78,6 +76,16 @@
   git = {
     enable = true;
     name = "aletheios42";
+  };
+
+  postgres = {
+    enable = true;
+    puerto = 5432;
+    subdominio = "postgres";
+    pgadmin.puerto = 5050;
+    pgbouncer.puerto = 6432;
+    databases = [ "test" ];
+    datalocation = "/var/backup/postgresql";
   };
 
   nginx = {
@@ -119,11 +127,12 @@
     };
   };
 
-  vpn = {
-    enable = false;
-    usuario = "aletheios42";
-    subdominio = "vpn";
-  };
+  # meter netbird
+  # vpn = {
+  #   enable = false;
+  #   usuario = "aletheios42";
+  #   subdominio = "vpn";
+  # };
 
   monitoring = {
     enable = false;
@@ -170,9 +179,19 @@
     subdominio = "cloud";
   };
 
-  rss = {
-    enable = false;
-    subdominio = "rss";
+  miniflux = {
+    enable = true;
+    subdominio = "miniflux";
+    puerto = 8080;
   };
 
+  
+  # webs.europaNosUne = {
+  #   enable = true;
+  #   gitUrl = "https://github.com/Aletheios42/NewsPaper";
+  #   subdominio = "europanosune";
+  #   puertoDirectus = 8055;
+  #   puertoFrontend = 3000;
+  #   WorkingDirectory = "/opt/europanosune/";
+  # };
 }

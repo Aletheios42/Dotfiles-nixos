@@ -4,7 +4,7 @@
 
   config = lib.mkIf config.media.cliente {
     userPackages.media = [
-      pkgs.cmus
+      pkgs.nuclear
       pkgs.pavucontrol
       pkgs.vlc
       pkgs.mpv
@@ -24,8 +24,12 @@
       })
     ];
 
-    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [
       ".local/share/Grayjay"
+      ".config/blender"
+      ".config/obs-studio"
+      ".config/vlc"
+      ".local/state/mpv"
     ];
   };
 }

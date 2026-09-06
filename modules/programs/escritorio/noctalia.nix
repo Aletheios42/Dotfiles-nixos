@@ -1,5 +1,7 @@
 { config, lib, pkgs, ... }:
 let
+  home = "${config.users.users.${config.usuarioPrincipal}.home}";
+
   noctaliaSettings = (pkgs.formats.toml { }).generate "noctalia-settings.toml" {
     theme = {
       name = "Catppuccin Mocha";
@@ -158,11 +160,11 @@ in
 
     system.activationScripts.noctaliaConfig = {
       text = ''
-        mkdir -p ${config.vars.home}/.local/state/noctalia
-        ln -sf ${noctaliaSettings} ${config.vars.home}/.local/state/noctalia/settings.toml
-        chown -R ${config.vars.usuarioPrincipal}:users ${config.vars.home}/.local/state/noctalia
+        mkdir -p ${home}/.local/state/noctalia
+        ln -sf ${noctaliaSettings} ${home}/.local/state/noctalia/settings.toml
+        chown -R ${config.usuarioPrincipal}:users ${home}/.local/state/noctalia
       '';
     };
-    myImpermanence.users.${config.vars.usuarioPrincipal}.directories = [ ".cache/noctalia" ".local/share/noctalia" ];
+    myImpermanence.users.${config.usuarioPrincipal}.directories = [ ".cache/noctalia" ".local/share/noctalia" ".local/state/noctalia" ];
   };
 }

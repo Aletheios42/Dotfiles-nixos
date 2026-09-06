@@ -1,6 +1,6 @@
 { pkgs, lib, config, ... }:
 let
-  user  = config.vars.usuarioPrincipal;
+  user  = config.usuarioPrincipal;
 in
   {
   options.editor.enable = lib.mkEnableOption "Activa nvim";

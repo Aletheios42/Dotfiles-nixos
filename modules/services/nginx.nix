@@ -39,8 +39,8 @@
       acceptTerms     = true;
       defaults.email  = config.nginx.email;
       certs."wildcard" = {
-        domain = "*.${config.vars.dominio}";
-        extraDomainNames = [ "${config.vars.dominio}" ];
+        domain = "*.${config.red.dominio}";
+        extraDomainNames = [ "${config.red.dominio}" ];
         dnsProvider = "cloudflare";
         environmentFile = config.sops.templates."acme-cloudflare-env".path;
       };
